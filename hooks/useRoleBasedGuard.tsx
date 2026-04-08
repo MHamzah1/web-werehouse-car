@@ -22,32 +22,20 @@ const ROLE_BASED_ROUTES = {
     "/warehouse/showrooms": ["showroom_owner", "warehouse_admin"],
     "/warehouse/showroom-view": ["showroom_owner", "warehouse_admin"],
     "/warehouse/showroom-map": ["showroom_owner", "warehouse_admin"],
-    "/warehouse/vehicles": [
-      "showroom_owner",
-      "warehouse_admin",
-      "inspector",
-    ],
-    "/warehouse/inspections": [
-      "inspector",
-      "showroom_owner",
-    ],
+    "/warehouse/vehicles": ["showroom_owner", "warehouse_admin", "inspector"],
+    "/warehouse/inspections": ["inspector", "showroom_owner"],
     "/warehouse/zones": ["warehouse_admin", "showroom_owner"],
-    "/warehouse/repairs": [
-      "showroom_owner",
-      "mechanic",
-    ],
+    "/warehouse/repairs": ["showroom_owner", "mechanic"],
     "/warehouse/disbursements": ["showroom_owner", "warehouse_admin"],
     "/warehouse/purchases": ["showroom_owner", "warehouse_admin"],
     "/warehouse/stock-logs": ["showroom_owner", "warehouse_admin"],
   } as Record<string, string[]>,
 
-  // Master data - accessible by admin_mediator and showroom_owner
+  // Master data - accessible by super_admin and showroom_owner
   masterData: ["/master-data"],
 
   // Routes yang memerlukan login (any role)
-  authenticated: [
-    "/profile",
-  ],
+  authenticated: ["/profile"],
 
   // Guest only routes (belum login)
   guest: ["/auth/login", "/auth/register"],
@@ -86,15 +74,19 @@ export const useRoleBasedGuard = (): RouteGuardResult => {
 
     const checkAccess = () => {
       // Check master data routes
-      const isMasterDataRoute = ROLE_BASED_ROUTES.masterData.some((route: string) =>
-        pathname.startsWith(route),
+      const isMasterDataRoute = ROLE_BASED_ROUTES.masterData.some(
+        (route: string) => pathname.startsWith(route),
       );
 
       if (isMasterDataRoute) {
         if (!isLoggedIn) {
           router.push(`/auth/login?redirect=${encodeURIComponent(pathname)}`);
           setIsAllowed(false);
-        } else if (!["admin_mediator", "showroom_owner", "warehouse_admin"].includes(userRole || "")) {
+        } else if (
+          !["super_admin", "showroom_owner", "warehouse_admin"].includes(
+            userRole || "",
+          )
+        ) {
           redirectToRoleBasedDashboard();
           setIsAllowed(false);
         } else {
@@ -119,7 +111,7 @@ export const useRoleBasedGuard = (): RouteGuardResult => {
             "warehouse_admin",
             "inspector",
             "mechanic",
-            "admin_mediator",
+            "super_admin",
           ].includes(userRole || "")
         ) {
           router.push("/auth/login");
@@ -133,7 +125,7 @@ export const useRoleBasedGuard = (): RouteGuardResult => {
 
           if (
             matchedRoute &&
-            userRole !== "admin_mediator" &&
+            userRole !== "super_admin" &&
             !subRoutes[matchedRoute].includes(userRole || "")
           ) {
             router.push("/warehouse/dashboard");
@@ -202,8 +194,8 @@ export const hasRoleAccess = (
 ): boolean => {
   if (!userRole) return false;
 
-  // admin_mediator = super admin
-  if (userRole === "admin_mediator") return true;
+  // super_admin = super admin
+  if (userRole === "super_admin") return true;
 
   // Check warehouse sub-routes
   if (ROLE_BASED_ROUTES.warehouse.some((route) => pathname.startsWith(route))) {
@@ -224,12 +216,18 @@ export const hasRoleAccess = (
   }
 
   // Master data routes
-  if (ROLE_BASED_ROUTES.masterData.some((route) => pathname.startsWith(route))) {
-    return ["admin_mediator", "showroom_owner", "warehouse_admin"].includes(userRole);
+  if (
+    ROLE_BASED_ROUTES.masterData.some((route) => pathname.startsWith(route))
+  ) {
+    return ["super_admin", "showroom_owner", "warehouse_admin"].includes(
+      userRole,
+    );
   }
 
   // Authenticated routes
-  if (ROLE_BASED_ROUTES.authenticated.some((route) => pathname.startsWith(route))) {
+  if (
+    ROLE_BASED_ROUTES.authenticated.some((route) => pathname.startsWith(route))
+  ) {
     return true;
   }
 
