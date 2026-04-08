@@ -122,7 +122,7 @@ export const fetchUserProfile = createAsyncThunk<
   { rejectValue: string }
 >("auth/fetchProfile", async (_, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.get("/users/profile", {
+    const response = await axiosInstance.get("/auth/profile", {
       headers: getHeaders(),
     });
 

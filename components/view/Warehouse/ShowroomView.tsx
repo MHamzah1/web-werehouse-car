@@ -7,7 +7,6 @@ import {
   fetchShowroomView,
   fetchShowroomViewVehicle,
   markVehicleReadyAndPlace,
-  publishVehicle,
   clearSuccess,
   clearError,
   clearShowroomViewVehicle,
@@ -33,7 +32,6 @@ import {
   FiClipboard,
   FiDollarSign,
   FiCheck,
-  FiExternalLink,
   FiGrid,
   FiList,
   FiBarChart2,
@@ -1264,17 +1262,6 @@ const VehicleDetailModal = ({
                       </button>
                     </>
                   )}
-                  {detail.vehicle.status === "ready" && (
-                    <button
-                      onClick={() =>
-                        dispatch(publishVehicle(detail.vehicle.id))
-                      }
-                      disabled={actionLoading}
-                      className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-50"
-                    >
-                      <FiExternalLink /> Publish Marketplace
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
@@ -1373,17 +1360,6 @@ const ActionButton = ({
         href={generateUrlWithEncryptedParams("/warehouse/inspections/create", {
           vehicleId: vehicle.id,
         })}
-        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-colors border ${style}`}
-      >
-        {icons[action.key]} {action.label}
-      </Link>
-    );
-  }
-
-  if (action.key === "view_listing" && vehicle.listingId) {
-    return (
-      <Link
-        href={`/marketplace/${vehicle.listingId}`}
         className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-colors border ${style}`}
       >
         {icons[action.key]} {action.label}

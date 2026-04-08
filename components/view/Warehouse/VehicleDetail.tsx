@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/state/store";
 import {
   fetchVehicleDetail,
-  publishVehicle,
   createDisbursement,
   CreateDisbursementData,
   placeVehicleByZoneType,
@@ -312,19 +311,10 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiTool /> Repair Order
                 </Link>
               )}
-              {vehicle.status === "ready" && (
-                <button
-                  onClick={() => dispatch(publishVehicle(vehicle.id))}
-                  disabled={actionLoading}
-                  className="flex flex-1 md:flex-none justify-center items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none"
-                >
-                  <FiExternalLink /> Publish ke Marketplace
-                </button>
-              )}
             </div>
 
             {/* Zone Placement Select */}
-            {vehicle.status !== "sold" && vehicle.status !== "listed" && (
+            {vehicle.status !== "sold" && (
               <ZonePlacementSelect
                 isDark={isDark}
                 actionLoading={actionLoading}

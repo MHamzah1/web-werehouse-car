@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 
 // Wajib mengarah ke /api
 const baseURL =
-  process.env.NEXT_PUBLIC_API_URL || "http://192.168.100.247:8080/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
 
 export const instanceAxios = axios.create({
   baseURL,

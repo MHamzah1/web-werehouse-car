@@ -7,7 +7,7 @@ export const getHeaders = () => {
   };
   if (typeof window !== "undefined") {
     const token = Cookies.get("accessToken");
-    if (token) headers.Authorization = token;
+    if (token) headers.Authorization = `Bearer ${token}`;
   }
   return headers;
 };
@@ -15,10 +15,10 @@ export const getHeaders = () => {
 // Header untuk multipart/form-data (file upload)
 // Content-Type tidak di-set agar browser otomatis set boundary
 export const getHeadersFormData = () => {
-  const token = Cookies.get("token");
+  const token = Cookies.get("accessToken");
   const headersFormData = {
     "Content-Type": "multipart/form-data",
-    Authorization: `Bearer ${token}`, // Token diambil dari cookies
+    Authorization: `Bearer ${token}`,
   };
 
   return headersFormData;

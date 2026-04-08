@@ -47,7 +47,6 @@ export type VehicleStatus =
   | "in_warehouse"
   | "in_repair"
   | "ready"
-  | "listed"
   | "sold"
   | "rejected";
 
@@ -83,7 +82,6 @@ export interface WarehouseVehicle {
   locationCity?: string;
   locationProvince?: string;
   status: VehicleStatus;
-  listingId?: string;
   notes?: string;
   inspections?: VehicleInspection[];
   placements?: VehiclePlacement[];
@@ -211,7 +209,6 @@ export interface PurchaseTransaction {
   id: string;
   warehouseVehicleId: string;
   warehouseVehicle?: WarehouseVehicle;
-  listingId?: string;
   buyerId: string;
   totalPrice: number;
   paymentType: "cash" | "credit" | "booking_fee";
@@ -535,7 +532,6 @@ export interface ShowroomViewVehicle {
   thumbnail: string | null;
   description: string | null;
   sellerName: string;
-  listingId: string | null;
   createdAt: string;
   updatedAt: string;
   location: { city: string; province: string } | null;
@@ -1135,9 +1131,8 @@ export const updateVehicleStatus = createAsyncThunk<
     try {
       const res = await instanceAxios.patch(
         `/warehouse/vehicles/${id}/status`,
-        {},
+        { status },
         {
-          params: { status },
           headers: getHeaders(),
         },
       );
@@ -1168,27 +1163,6 @@ export const placeVehicle = createAsyncThunk<
     const err = e as AxiosError<ErrorResponse>;
     return rejectWithValue(
       err.response?.data?.message || "Gagal menempatkan kendaraan",
-    );
-  }
-});
-
-export const publishVehicle = createAsyncThunk<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any,
-  string,
-  { rejectValue: string }
->("warehouse/publishVehicle", async (id, { rejectWithValue }) => {
-  try {
-    const res = await instanceAxios.post(
-      `/warehouse/vehicles/${id}/publish`,
-      {},
-      { headers: getHeaders() },
-    );
-    return res.data?.data ?? res.data;
-  } catch (e) {
-    const err = e as AxiosError<ErrorResponse>;
-    return rejectWithValue(
-      err.response?.data?.message || "Gagal publish ke marketplace",
     );
   }
 });
@@ -1310,7 +1284,7 @@ export const approveInspection = createAsyncThunk<
   { rejectValue: string }
 >("warehouse/approveInspection", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const res = await instanceAxios.patch(
+    const res = await instanceAxios.post(
       `/warehouse/inspections/${id}/approve`,
       data,
       { headers: getHeaders() }
@@ -1330,9 +1304,9 @@ export const rejectInspection = createAsyncThunk<
   { rejectValue: string }
 >("warehouse/rejectInspection", async ({ id, data }, { rejectWithValue }) => {
   try {
-    const res = await instanceAxios.patch(
+    const res = await instanceAxios.post(
       `/warehouse/inspections/${id}/reject`,
-      data,
+      { rejectionReason: data.approvalNotes },
       { headers: getHeaders() }
     );
     return res.data?.data ?? res.data;
@@ -1355,8 +1329,8 @@ export const fetchZonesByShowroom = createAsyncThunk<
 >("warehouse/fetchZonesByShowroom", async (showroomId, { rejectWithValue }) => {
   try {
     const res = await instanceAxios.get(
-      `/warehouse/zones/showroom/${showroomId}`,
-      { headers: getHeaders() },
+      `/warehouse/zones`,
+      { params: { showroomId }, headers: getHeaders() },
     );
     return res.data?.data ?? res.data;
   } catch (e) {
@@ -1454,9 +1428,8 @@ export const updateRepairStatus = createAsyncThunk<
     try {
       const res = await instanceAxios.patch(
         `/warehouse/repairs/${id}/status`,
-        null,
+        { status, ...(actualCost ? { actualCost } : {}) },
         {
-          params: { status, ...(actualCost ? { actualCost } : {}) },
           headers: getHeaders(),
         },
       );
@@ -1546,7 +1519,7 @@ export const fetchAllDisbursements = createAsyncThunk<
   { rejectValue: string }
 >("warehouse/fetchAllDisbursements", async (params, { rejectWithValue }) => {
   try {
-    const res = await instanceAxios.get(`/warehouse/disbursements/all`, {
+    const res = await instanceAxios.get(`/warehouse/disbursements`, {
       params,
       headers: getHeaders(),
     });
@@ -1788,8 +1761,8 @@ export const fetchPurchasesByShowroom = createAsyncThunk<
   async (showroomId, { rejectWithValue }) => {
     try {
       const res = await instanceAxios.get(
-        `/warehouse/purchases/showroom/${showroomId}`,
-        { headers: getHeaders() },
+        `/warehouse/purchases`,
+        { params: { showroomId }, headers: getHeaders() },
       );
       return res.data?.data ?? res.data;
     } catch (e) {
@@ -1807,8 +1780,8 @@ export const confirmPurchasePayment = createAsyncThunk<
   { rejectValue: string }
 >("warehouse/confirmPurchasePayment", async (id, { rejectWithValue }) => {
   try {
-    const res = await instanceAxios.patch(
-      `/warehouse/purchases/${id}/confirm-payment`,
+    const res = await instanceAxios.post(
+      `/warehouse/purchases/${id}/complete`,
       {},
       { headers: getHeaders() },
     );
@@ -1835,9 +1808,9 @@ export const fetchStockLogs = createAsyncThunk<
   async ({ showroomId, page, perPage }, { rejectWithValue }) => {
     try {
       const res = await instanceAxios.get(
-        `/warehouse/stock/${showroomId}/logs`,
+        `/warehouse/stock-logs`,
         {
-          params: { page: page || 1, perPage: perPage || 20 },
+          params: { showroomId, page: page || 1, limit: perPage || 20 },
           headers: getHeaders(),
         },
       );
@@ -1858,7 +1831,7 @@ export const fetchStockSummary = createAsyncThunk<
 >("warehouse/fetchStockSummary", async (showroomId, { rejectWithValue }) => {
   try {
     const res = await instanceAxios.get(
-      `/warehouse/stock/${showroomId}/summary`,
+      `/warehouse/showrooms/${showroomId}/dashboard`,
       { headers: getHeaders() },
     );
     return res.data?.data ?? res.data;
@@ -1884,7 +1857,7 @@ export const fetchShowroomView = createAsyncThunk<
   async ({ showroomId, params }, { rejectWithValue }) => {
     try {
       const res = await instanceAxios.get(
-        `/warehouse/showroom-view/${showroomId}`,
+        `/warehouse/showrooms/${showroomId}/dashboard`,
         {
           params: params || {},
           headers: getHeaders(),
@@ -1931,14 +1904,11 @@ export const markVehicleReadyAndPlace = createAsyncThunk<
   "warehouse/markVehicleReadyAndPlace",
   async ({ vehicleId, zoneId }, { rejectWithValue }) => {
     try {
-      // Step 1: Update status to ready
-      await instanceAxios.patch(
-        `/warehouse/vehicles/${vehicleId}/status`,
+      // Step 1: Mark vehicle as ready
+      await instanceAxios.post(
+        `/warehouse/vehicles/${vehicleId}/mark-ready`,
         {},
-        {
-          params: { status: "ready" },
-          headers: getHeaders(),
-        },
+        { headers: getHeaders() },
       );
       // Step 2: Place in ready zone
       const res = await instanceAxios.post(
@@ -2204,9 +2174,6 @@ const warehouseSlice = createSlice({
 
       .addCase(placeVehicle.fulfilled, (state) => {
         state.successMessage = "Kendaraan berhasil ditempatkan!";
-      })
-      .addCase(publishVehicle.fulfilled, (state) => {
-        state.successMessage = "Kendaraan berhasil dipublish ke marketplace!";
       });
 
     // ---- INSPECTION ----
