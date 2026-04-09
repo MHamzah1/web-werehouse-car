@@ -1,17 +1,11 @@
 "use client";
 
 import LandingNavbar from "./LandingNavbar";
-import HeroSection from "./HeroSection";
-import AboutSection from "./AboutSection";
-import CatalogSection from "./CatalogSection";
-import WhyUsSection from "./WhyUsSection";
-import ShowroomSection from "./ShowroomSection";
-import ContactSection from "./ContactSection";
 import LandingFooter from "./LandingFooter";
 
 const WHATSAPP_NUMBER = "6281574865632";
 
-export default function LandingPage() {
+export default function LandingLayout({ children }: { children: React.ReactNode }) {
   const openWhatsApp = () => {
     const message = encodeURIComponent(
       "Halo K-CUNK MOTOR, saya tertarik untuk konsultasi mengenai mobil. Bisa dibantu?"
@@ -22,12 +16,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <LandingNavbar />
-      <HeroSection />
-      <CatalogSection />
-      <AboutSection />
-      <WhyUsSection />
-      <ShowroomSection />
-      <ContactSection />
+      <main className="pt-16 lg:pt-20">{children}</main>
       <LandingFooter />
 
       {/* Floating WhatsApp */}

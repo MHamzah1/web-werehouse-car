@@ -41,7 +41,7 @@ const ROLE_BASED_ROUTES = {
   guest: ["/auth/login", "/auth/register"],
 
   // Public routes (siapa saja bisa akses)
-  public: ["/", "/vehicles"],
+  public: ["/", "/vehicles", "/katalog", "/tentang", "/cabang", "/kontak"],
 };
 
 interface RouteGuardResult {

@@ -12,7 +12,7 @@ const ROUTE_CONFIG = {
     "/profile",
   ],
   guest: ["/auth/login", "/auth/register"],
-  public: ["/", "/vehicles"],
+  public: ["/", "/vehicles", "/katalog", "/tentang", "/cabang", "/kontak"],
 };
 
 export const useRouteGuard = () => {

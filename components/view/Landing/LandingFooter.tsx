@@ -1,75 +1,78 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
+import { Car } from "lucide-react";
+
+const menuLinks = [
+  { label: "Beranda", href: "/" },
+  { label: "Katalog Mobil", href: "/katalog" },
+  { label: "Tentang Kami", href: "/tentang" },
+  { label: "Cabang Kami", href: "/cabang" },
+  { label: "Kontak", href: "/kontak" },
+];
 
 export default function LandingFooter() {
   const currentYear = new Date().getFullYear();
 
-  const scrollTo = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <footer className="relative border-t border-white/[0.06]">
-      <div className="absolute inset-0 bg-[#020617]" />
+    <footer className="relative border-t border-slate-800">
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-black" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                <span className="text-white font-black text-sm">KC</span>
+          <div className="col-span-2 md:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                <Car className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-bold text-white">K-CUNK MOTOR</p>
-                <p className="text-xs text-gray-500">Jual Beli Mobil Bekas Berkualitas</p>
+                <p className="font-black text-sm text-white tracking-wide">K-CUNK MOTOR</p>
+                <p className="text-[9px] text-slate-500 tracking-widest uppercase">Cepat, dan Terpercaya</p>
               </div>
-            </div>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Showroom mobil bekas terpercaya di Tulungagung sejak 2007.
-              Menyediakan kendaraan berkualitas dengan proses yang transparan.
+            </Link>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Showroom mobil bekas terpercaya di Tulungagung sejak 2007. Menyediakan kendaraan berkualitas dengan proses transparan.
             </p>
           </div>
 
-          {/* Links */}
+          {/* Menu */}
           <div>
-            <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">
-              Menu
-            </h4>
-            <ul className="space-y-2">
-              {[
-                { label: "Beranda", href: "#beranda" },
-                { label: "Tentang Kami", href: "#tentang" },
-                { label: "Katalog Mobil", href: "#katalog" },
-                { label: "Cabang", href: "#cabang" },
-                { label: "Kontak", href: "#kontak" },
-              ].map((link) => (
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Menu</h4>
+            <ul className="space-y-2 sm:space-y-2.5">
+              {menuLinks.map((link) => (
                 <li key={link.href}>
-                  <button
-                    onClick={() => scrollTo(link.href)}
-                    className="text-sm text-gray-500 hover:text-orange-400 transition-colors"
+                  <Link
+                    href={link.href}
+                    className="text-xs sm:text-sm text-slate-500 hover:text-cyan-400 transition-colors"
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Layanan */}
           <div>
-            <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">
-              Kontak
-            </h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li>WhatsApp: +62 815-7486-5632</li>
-              <li>Senin - Sabtu: 08:00 - 20:00 WIB</li>
-              <li>Minggu: 09:00 - 17:00 WIB</li>
-              <li className="pt-2">
-                Jl. Raya Prigi, Sripit, Talunkulon,
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Layanan</h4>
+            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
+              <li>Jual Beli Mobil Bekas</li>
+              <li>Inspeksi Kendaraan</li>
+              <li>Tukar Tambah</li>
+              <li>Konsultasi Gratis</li>
+            </ul>
+          </div>
+
+          {/* Kontak */}
+          <div>
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Kontak</h4>
+            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
+              <li>WA: +62 815-7486-5632</li>
+              <li>Sen - Sab: 08:00 - 20:00</li>
+              <li>Minggu: 09:00 - 17:00</li>
+              <li className="pt-1">
+                Jl. Raya Prigi, Tulunkulon,
                 <br />
                 Kec. Bandung, Tulungagung
               </li>
@@ -78,13 +81,13 @@ export default function LandingFooter() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-10 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-600">
+        <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[10px] sm:text-xs text-slate-600">
             &copy; {currentYear} K-CUNK MOTOR. All rights reserved.
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-[10px] sm:text-xs text-slate-600">
             Powered by{" "}
-            <span className="text-gray-500 font-medium">Mediator Warehouse System</span>
+            <span className="text-slate-500 font-medium">Mediator Warehouse System</span>
           </p>
         </div>
       </div>
