@@ -41,7 +41,7 @@ const ROLE_BASED_ROUTES = {
   guest: ["/auth/login", "/auth/register"],
 
   // Public routes (siapa saja bisa akses)
-  public: ["/"],
+  public: ["/", "/vehicles"],
 };
 
 interface RouteGuardResult {
@@ -70,6 +70,16 @@ export const useRoleBasedGuard = (): RouteGuardResult => {
   };
 
   useEffect(() => {
+    // Allow public routes immediately without waiting for auth
+    const isPublicRoute = ROLE_BASED_ROUTES.public.some((route) =>
+      pathname === route || pathname.startsWith(route + "/")
+    );
+    if (isPublicRoute) {
+      setIsAllowed(true);
+      setIsChecking(false);
+      return;
+    }
+
     if (loading) return;
 
     const checkAccess = () => {

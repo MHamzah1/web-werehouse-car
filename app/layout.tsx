@@ -18,9 +18,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mediator Warehouse - Sistem Manajemen Gudang",
+  title: {
+    default: "K-CUNK MOTOR - Jual Beli Mobil Bekas Berkualitas Tulungagung",
+    template: "%s | K-CUNK MOTOR",
+  },
   description:
-    "Platform manajemen warehouse kendaraan dengan fitur inspeksi, perbaikan, dan pencairan dana",
+    "Showroom mobil bekas terpercaya di Tulungagung, Jawa Timur. Mobil berkualitas, harga realistis, proses transparan. 3 cabang showroom siap melayani.",
+  keywords: [
+    "mobil bekas tulungagung",
+    "showroom mobil tulungagung",
+    "jual beli mobil bekas",
+    "K-CUNK MOTOR",
+    "mobil bekas berkualitas",
+    "dealer mobil tulungagung",
+  ],
+  openGraph: {
+    title: "K-CUNK MOTOR - Jual Beli Mobil Bekas Berkualitas",
+    description:
+      "Showroom mobil bekas terpercaya di Tulungagung. Mobil berkualitas, harga realistis, proses transparan.",
+    type: "website",
+    locale: "id_ID",
+    siteName: "K-CUNK MOTOR",
+  },
 };
 
 export default function RootLayout({

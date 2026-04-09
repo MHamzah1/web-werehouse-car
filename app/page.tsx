@@ -1,30 +1,29 @@
-"use client";
+import type { Metadata } from "next";
+import LandingPage from "@/components/view/Landing/LandingPage";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/state/store";
+export const metadata: Metadata = {
+  title: "K-CUNK MOTOR - Jual Beli Mobil Bekas Berkualitas Tulungagung",
+  description:
+    "Showroom mobil bekas terpercaya di Tulungagung, Jawa Timur. Mobil berkualitas, harga realistis, proses transparan. 3 cabang showroom siap melayani Anda.",
+  keywords: [
+    "mobil bekas tulungagung",
+    "showroom mobil tulungagung",
+    "jual beli mobil bekas",
+    "K-CUNK MOTOR",
+    "mobil bekas berkualitas",
+    "dealer mobil tulungagung",
+    "mobil second tulungagung",
+    "jawa timur",
+  ],
+  openGraph: {
+    title: "K-CUNK MOTOR - Jual Beli Mobil Bekas Berkualitas",
+    description:
+      "Showroom mobil bekas terpercaya di Tulungagung. Mobil berkualitas, harga realistis, proses transparan.",
+    type: "website",
+    locale: "id_ID",
+  },
+};
 
 export default function Home() {
-  const router = useRouter();
-  const { isLoggedIn, loading } = useSelector((state: RootState) => state.auth);
-
-  useEffect(() => {
-    if (!loading) {
-      if (isLoggedIn) {
-        router.replace("/warehouse/dashboard");
-      } else {
-        router.replace("/auth/login");
-      }
-    }
-  }, [isLoggedIn, loading, router]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mb-4"></div>
-        <p className="text-gray-600 font-medium">Memuat...</p>
-      </div>
-    </div>
-  );
+  return <LandingPage />;
 }

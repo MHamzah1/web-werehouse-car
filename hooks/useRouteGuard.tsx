@@ -12,7 +12,7 @@ const ROUTE_CONFIG = {
     "/profile",
   ],
   guest: ["/auth/login", "/auth/register"],
-  public: ["/"],
+  public: ["/", "/vehicles"],
 };
 
 export const useRouteGuard = () => {
@@ -23,6 +23,17 @@ export const useRouteGuard = () => {
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
+    const isPublicRoute = ROUTE_CONFIG.public.some((route) =>
+      pathname === route || pathname.startsWith(route + "/")
+    );
+
+    // Allow public routes immediately without waiting for auth
+    if (isPublicRoute) {
+      setIsAllowed(true);
+      setIsChecking(false);
+      return;
+    }
+
     if (loading) return;
 
     const checkRouteAccess = () => {
