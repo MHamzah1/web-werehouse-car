@@ -393,6 +393,10 @@ export interface CreateShowroomData {
 
 export interface CreateVehicleData {
   showroomId: string;
+  brandName: string;
+  modelName: string;
+  year: number;
+  carModelId?: string;
   variantId: string;
   yearPriceId: string;
   color: string;
@@ -402,16 +406,16 @@ export interface CreateVehicleData {
   mileage: number;
   fuelType: string;
   askingPrice: number;
+  ownershipStatus?: string;
+  taxStatus?: string;
+  locationCity?: string;
+  locationProvince?: string;
   sellerName: string;
   sellerPhone: string;
   sellerWhatsapp?: string;
   sellerKtp?: string;
   description?: string;
   condition?: string;
-  ownershipStatus?: string;
-  taxStatus?: string;
-  locationCity?: string;
-  locationProvince?: string;
   notes?: string;
   images?: File[];
 }
@@ -1027,6 +1031,9 @@ export const registerVehicle = createAsyncThunk<
   try {
     const formData = new FormData();
     formData.append("showroomId", data.showroomId);
+    formData.append("brandName", data.brandName);
+    formData.append("modelName", data.modelName);
+    formData.append("year", String(data.year));
     formData.append("variantId", data.variantId);
     formData.append("yearPriceId", data.yearPriceId);
     formData.append("color", data.color);
@@ -1040,17 +1047,18 @@ export const registerVehicle = createAsyncThunk<
     formData.append("sellerPhone", data.sellerPhone);
 
     // Optional fields
-    if (data.sellerWhatsapp)
-      formData.append("sellerWhatsapp", data.sellerWhatsapp);
-    if (data.sellerKtp) formData.append("sellerKtp", data.sellerKtp);
-    if (data.description) formData.append("description", data.description);
-    if (data.condition) formData.append("condition", data.condition);
+    if (data.carModelId) formData.append("carModelId", data.carModelId);
     if (data.ownershipStatus)
       formData.append("ownershipStatus", data.ownershipStatus);
     if (data.taxStatus) formData.append("taxStatus", data.taxStatus);
     if (data.locationCity) formData.append("locationCity", data.locationCity);
     if (data.locationProvince)
       formData.append("locationProvince", data.locationProvince);
+    if (data.sellerWhatsapp)
+      formData.append("sellerWhatsapp", data.sellerWhatsapp);
+    if (data.sellerKtp) formData.append("sellerKtp", data.sellerKtp);
+    if (data.description) formData.append("description", data.description);
+    if (data.condition) formData.append("condition", data.condition);
     if (data.notes) formData.append("notes", data.notes);
 
     // Images
@@ -1078,6 +1086,9 @@ export const updateVehicle = createAsyncThunk<
   try {
     const formData = new FormData();
     formData.append("showroomId", data.showroomId);
+    formData.append("brandName", data.brandName);
+    formData.append("modelName", data.modelName);
+    formData.append("year", String(data.year));
     formData.append("variantId", data.variantId);
     formData.append("yearPriceId", data.yearPriceId);
     formData.append("color", data.color);
@@ -1091,17 +1102,18 @@ export const updateVehicle = createAsyncThunk<
     formData.append("sellerPhone", data.sellerPhone);
 
     // Optional fields
-    if (data.sellerWhatsapp)
-      formData.append("sellerWhatsapp", data.sellerWhatsapp);
-    if (data.sellerKtp) formData.append("sellerKtp", data.sellerKtp);
-    if (data.description) formData.append("description", data.description);
-    if (data.condition) formData.append("condition", data.condition);
+    if (data.carModelId) formData.append("carModelId", data.carModelId);
     if (data.ownershipStatus)
       formData.append("ownershipStatus", data.ownershipStatus);
     if (data.taxStatus) formData.append("taxStatus", data.taxStatus);
     if (data.locationCity) formData.append("locationCity", data.locationCity);
     if (data.locationProvince)
       formData.append("locationProvince", data.locationProvince);
+    if (data.sellerWhatsapp)
+      formData.append("sellerWhatsapp", data.sellerWhatsapp);
+    if (data.sellerKtp) formData.append("sellerKtp", data.sellerKtp);
+    if (data.description) formData.append("description", data.description);
+    if (data.condition) formData.append("condition", data.condition);
     if (data.notes) formData.append("notes", data.notes);
 
     // Images

@@ -39,12 +39,13 @@ import {
   FiTrash2,
   FiPercent,
   FiPrinter,
+  FiGlobe,
 } from "react-icons/fi";
 import { BsSpeedometer2, BsFuelPump } from "react-icons/bs";
 import { TbManualGearbox } from "react-icons/tb";
 import { AiOutlineSafety } from "react-icons/ai";
 import { useTheme } from "@/context/ThemeContext";
-import { generateUrlWithEncryptedParams } from "@/lib/slug/slug";
+import { generateUrlWithEncryptedParams, encryptSlug } from "@/lib/slug/slug";
 import { QRCodeSVG } from "qrcode.react";
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -309,6 +310,23 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   className="flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm hover:bg-orange-500/30 transition-colors border border-orange-500/30"
                 >
                   <FiTool /> Repair Order
+                </Link>
+              )}
+
+              {/* Publish / Edit Listing — muncul saat status READY atau PUBLISHED */}
+              {(vehicle.status === "ready" || vehicle.status === "published") && (
+                <Link
+                  href={`/warehouse/vehicles/${encryptSlug(vehicle.id)}/publish`}
+                  className={`flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors border ${
+                    vehicle.status === "published"
+                      ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 hover:bg-purple-500/30 border-purple-500/30"
+                      : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 border-transparent"
+                  }`}
+                >
+                  <FiGlobe className="w-4 h-4" />
+                  {vehicle.status === "published"
+                    ? "Edit Listing"
+                    : "Publish ke Landing Page"}
                 </Link>
               )}
             </div>

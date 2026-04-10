@@ -6,6 +6,7 @@ import CarModelsSlice from "./slice/car-models/CarModelsSlice";
 import variantSlice from "./slice/variant/variantSlice";
 import yearPriceSlice from "./slice/year-price/yearPriceSlice";
 import warehouseSlice from "./slice/warehouse/warehouseSlice";
+import listingSlice from "./slice/listing/listingSlice";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     variant: variantSlice,
     yearPrice: yearPriceSlice,
     warehouse: warehouseSlice,
+    listing: listingSlice,
   },
 });
 
