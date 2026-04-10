@@ -91,7 +91,7 @@ export const getCarModelsWithFilters = createAsyncThunk<
     { rejectWithValue }
   ) => {
     try {
-      const response = await instanceAxios.get(`/CarModels`, {
+      const response = await instanceAxios.get(`/car-models`, {
         params: { page, perPage, ...filters },
         headers: getHeaders(),
       });
@@ -122,7 +122,7 @@ export const getCarModelsForTable = createAsyncThunk<
   "CarModels/getCarModelsForTable",
   async ({ isInfiniteScroll = false, ...filters }, { rejectWithValue }) => {
     try {
-      const response = await instanceAxios.get(`/CarModels`, {
+      const response = await instanceAxios.get(`/car-models`, {
         params: filters,
         headers: getHeaders(),
       });
@@ -164,7 +164,7 @@ export const getCarModelsForSelect = createAsyncThunk<
   "CarModels/getCarModelsForSelect",
   async ({ isInfiniteScroll = false, ...filters }, { rejectWithValue }) => {
     try {
-      const response = await instanceAxios.get(`/CarModels`, {
+      const response = await instanceAxios.get(`/car-models`, {
         params: filters,
         headers: getHeaders(),
       });
@@ -204,7 +204,7 @@ export const getCarModelsById = createAsyncThunk<
   { rejectValue: string }
 >("CarModels/getCarModelsById", async (id, { rejectWithValue }) => {
   try {
-    const response = await instanceAxios.get(`/CarModels/${id}`, {
+    const response = await instanceAxios.get(`/car-models/${id}`, {
       headers: getHeaders(),
     });
     return response.data;
@@ -225,7 +225,7 @@ export const createCarModels = createAsyncThunk<
   { rejectValue: string }
 >("CarModels/createCarModels", async (CarModelsData, { rejectWithValue }) => {
   try {
-    const response = await instanceAxios.post("/CarModels", CarModelsData, {
+    const response = await instanceAxios.post("/car-models", CarModelsData, {
       headers: getHeaders(),
     });
     return response.data;
@@ -249,7 +249,7 @@ export const updateCarModels = createAsyncThunk<
   async ({ id, CarModelsData }, { rejectWithValue }) => {
     try {
       const response = await instanceAxios.put(
-        `/CarModels/${id}`,
+        `/car-models/${id}`,
         CarModelsData,
         {
           headers: getHeaders(),
@@ -274,7 +274,7 @@ export const deleteCarModels = createAsyncThunk<
   { rejectValue: string }
 >("CarModels/deleteCarModels", async (id, { rejectWithValue }) => {
   try {
-    const response = await instanceAxios.delete(`/CarModels/${id}`, {
+    const response = await instanceAxios.delete(`/car-models/${id}`, {
       headers: getHeaders(),
     });
     return { id, ...response.data };

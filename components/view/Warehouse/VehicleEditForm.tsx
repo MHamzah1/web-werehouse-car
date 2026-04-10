@@ -432,7 +432,7 @@ const VehicleEditForm = ({ id }: VehicleEditFormProps) => {
               value={form.carModelId}
               displayValue={form.modelName}
               onChange={handleCarModelChange}
-              apiUrl="/CarModels"
+              apiUrl="/car-models"
               queryParams={selectedBrandId ? { brandId: selectedBrandId } : {}}
               getLabel={(item) => (item as CarModelItem).modelName}
               getValue={(item) => (item as CarModelItem).id}
