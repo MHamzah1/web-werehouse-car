@@ -347,6 +347,8 @@ export interface DisbursementWithDetails extends Disbursement {
 
 export interface CreateDisbursementData {
   warehouseVehicleId: string;
+  sellerId: string;
+  offerPrice: number;
   tempoDays?: number;
   deductions?: {
     description: string;

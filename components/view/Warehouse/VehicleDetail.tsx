@@ -1500,6 +1500,8 @@ const DisbursementVehicleModal = ({
   const handleSubmit = () => {
     onSubmit({
       warehouseVehicleId: vehicle.id,
+      sellerId: vehicle.sellerId,
+      offerPrice,
       tempoDays,
       deductions: deductions.filter((d) => d.description && d.amount > 0),
       notes: notes || undefined,

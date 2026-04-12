@@ -31,49 +31,49 @@ const statusConfig: Record<
   string,
   { label: string; color: string; bg: string; dot: string }
 > = {
-  inspecting: {
+  INSPECTING: {
     label: "Inspeksi",
     color: "text-yellow-600 dark:text-yellow-400",
     bg: "bg-yellow-500/10 border-yellow-500/30",
     dot: "bg-yellow-500",
   },
-  registered: {
+  REGISTERED: {
     label: "Terdaftar",
     color: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-500/10 border-blue-500/30",
     dot: "bg-blue-500",
   },
-  in_warehouse: {
+  IN_WAREHOUSE: {
     label: "Di Gudang",
     color: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/30",
     dot: "bg-emerald-500",
   },
-  in_repair: {
+  IN_REPAIR: {
     label: "Perbaikan",
     color: "text-orange-600 dark:text-orange-400",
     bg: "bg-orange-500/10 border-orange-500/30",
     dot: "bg-orange-500",
   },
-  ready: {
+  READY: {
     label: "Siap Jual",
     color: "text-green-600 dark:text-green-400",
     bg: "bg-green-500/10 border-green-500/30",
     dot: "bg-green-500",
   },
-  listed: {
+  PUBLISHED: {
     label: "Di Marketplace",
     color: "text-purple-600 dark:text-purple-400",
     bg: "bg-purple-500/10 border-purple-500/30",
     dot: "bg-purple-500",
   },
-  sold: {
+  SOLD: {
     label: "Terjual",
     color: "text-cyan-600 dark:text-cyan-400",
     bg: "bg-cyan-500/10 border-cyan-500/30",
     dot: "bg-cyan-500",
   },
-  rejected: {
+  REJECTED: {
     label: "Ditolak",
     color: "text-red-600 dark:text-red-400",
     bg: "bg-red-500/10 border-red-500/30",
