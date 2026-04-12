@@ -172,7 +172,9 @@ const ShowroomView = () => {
   const [imageIndex, setImageIndex] = useState(0);
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES || "http://localhost:8080";
+    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
+    "http://localhost:8081";
 
   // Fetch data
   const loadData = useCallback(() => {

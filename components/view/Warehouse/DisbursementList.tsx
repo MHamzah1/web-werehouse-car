@@ -133,7 +133,9 @@ const DisbursementList = () => {
   const [showSettleModal, setShowSettleModal] = useState<DisbursementWithDetails | null>(null);
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES || "http://localhost:8080";
+    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
+    "http://localhost:8081";
   const getImageUrl = (url: string) =>
     url?.startsWith("http") ? url : baseUrl + url;
 

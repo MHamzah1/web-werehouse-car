@@ -176,7 +176,9 @@ const VehicleDetail = ({ id }: { id: string }) => {
 
   // Fallback API Image Base URL
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES || "http://localhost:8080";
+    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
+    "http://localhost:8081";
 
   useEffect(() => {
     dispatch(fetchVehicleDetail(id));
@@ -1468,7 +1470,9 @@ const DisbursementVehicleModal = ({
 
   const thumbnail = vehicle.images?.[0];
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES || "http://localhost:8080";
+    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
+    "http://localhost:8081";
   const getImageUrl = (url: string) =>
     url?.startsWith("http") ? url : baseUrl + url;
 

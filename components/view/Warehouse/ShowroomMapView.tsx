@@ -154,7 +154,9 @@ const ShowroomMapView = () => {
   const [expandedZones, setExpandedZones] = useState<Set<string>>(new Set());
 
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES || "http://localhost:8080";
+    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
+    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
+    "http://localhost:8081";
 
   // Load data
   const loadData = useCallback(() => {
