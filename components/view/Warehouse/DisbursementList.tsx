@@ -158,7 +158,7 @@ const DisbursementList = () => {
       dispatch(
         fetchVehicles({
           showroomId: selectedShowroom.id,
-          status: "in_warehouse",
+          status: "IN_WAREHOUSE",
         }),
       );
     }

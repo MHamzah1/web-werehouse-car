@@ -42,13 +42,14 @@ export interface ShowroomMember {
 }
 
 export type VehicleStatus =
-  | "inspecting"
-  | "registered"
-  | "in_warehouse"
-  | "in_repair"
-  | "ready"
-  | "sold"
-  | "rejected";
+  | "INSPECTING"
+  | "REGISTERED"
+  | "IN_WAREHOUSE"
+  | "IN_REPAIR"
+  | "READY"
+  | "PUBLISHED"
+  | "SOLD"
+  | "REJECTED";
 
 export interface WarehouseVehicle {
   id: string;

@@ -1229,8 +1229,8 @@ const VehicleDetailModal = ({
                     />
                   ))}
                   {/* Ready to Sell - from status */}
-                  {(detail.vehicle.status === "in_warehouse" ||
-                    detail.vehicle.status === "in_repair") && (
+                  {(detail.vehicle.status === "IN_WAREHOUSE" ||
+                    detail.vehicle.status === "IN_REPAIR") && (
                     <>
                       <Link
                         href={generateUrlWithEncryptedParams(

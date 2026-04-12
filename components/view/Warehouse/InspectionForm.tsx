@@ -418,11 +418,11 @@ const InspectionForm = () => {
                         </div>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-md flex-shrink-0 capitalize ${
-                            v.status === "registered"
+                            v.status === "REGISTERED"
                               ? "bg-blue-500/10 text-blue-500"
-                              : v.status === "in_warehouse"
+                              : v.status === "IN_WAREHOUSE"
                                 ? "bg-emerald-500/10 text-emerald-500"
-                                : v.status === "in_repair"
+                                : v.status === "IN_REPAIR"
                                   ? "bg-orange-500/10 text-orange-500"
                                   : "bg-slate-500/10 text-slate-500"
                           }`}

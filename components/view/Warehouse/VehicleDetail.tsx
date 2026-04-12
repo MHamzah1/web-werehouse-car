@@ -280,7 +280,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
           <div className="flex flex-col gap-3 w-full md:w-auto">
             {/* Primary Actions */}
             <div className="flex flex-wrap gap-2">
-              {vehicle.status === "inspecting" && (
+              {vehicle.status === "INSPECTING" && (
                 <Link
                   href={generateUrlWithEncryptedParams(
                     "/warehouse/inspections/create",
@@ -291,8 +291,8 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiClipboard /> Mulai Inspeksi
                 </Link>
               )}
-              {(vehicle.status === "registered" ||
-                vehicle.status === "in_warehouse") && (
+              {(vehicle.status === "REGISTERED" ||
+                vehicle.status === "IN_WAREHOUSE") && (
                 <button
                   onClick={() => setIsDisbursementModalOpen(true)}
                   disabled={actionLoading}
@@ -301,9 +301,9 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiSend /> Pencairan Dana
                 </button>
               )}
-              {(vehicle.status === "in_warehouse" ||
-                vehicle.status === "in_repair" ||
-                vehicle.status === "registered") && (
+              {(vehicle.status === "IN_WAREHOUSE" ||
+                vehicle.status === "IN_REPAIR" ||
+                vehicle.status === "REGISTERED") && (
                 <Link
                   href={generateUrlWithEncryptedParams(
                     "/warehouse/repairs/create",
@@ -316,17 +316,17 @@ const VehicleDetail = ({ id }: { id: string }) => {
               )}
 
               {/* Publish / Edit Listing — muncul saat status READY atau PUBLISHED */}
-              {(vehicle.status === "ready" || vehicle.status === "published") && (
+              {(vehicle.status === "READY" || vehicle.status === "PUBLISHED") && (
                 <Link
                   href={`/warehouse/vehicles/${encryptSlug(vehicle.id)}/publish`}
                   className={`flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors border ${
-                    vehicle.status === "published"
+                    vehicle.status === "PUBLISHED"
                       ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 hover:bg-purple-500/30 border-purple-500/30"
                       : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-0.5 border-transparent"
                   }`}
                 >
                   <FiGlobe className="w-4 h-4" />
-                  {vehicle.status === "published"
+                  {vehicle.status === "PUBLISHED"
                     ? "Edit Listing"
                     : "Publish ke Landing Page"}
                 </Link>
@@ -334,7 +334,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
             </div>
 
             {/* Zone Placement Select */}
-            {vehicle.status !== "sold" && (
+            {vehicle.status !== "SOLD" && (
               <ZonePlacementSelect
                 isDark={isDark}
                 actionLoading={actionLoading}

@@ -138,7 +138,7 @@ const InspectionList = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchVehicles({ showroomId: selectedShowroom?.id, status: "inspecting" }));
+    dispatch(fetchVehicles({ showroomId: selectedShowroom?.id, status: "INSPECTING" }));
     dispatch(fetchPendingApprovals());
   }, [dispatch, selectedShowroom]);
 

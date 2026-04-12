@@ -36,14 +36,14 @@ interface VehicleItem {
 }
 
 const statusLabels: Record<string, string> = {
-  inspecting: "Inspeksi",
-  registered: "Terdaftar",
-  in_warehouse: "Di Gudang",
-  in_repair: "Perbaikan",
-  ready: "Siap Jual",
-  listed: "Marketplace",
-  sold: "Terjual",
-  rejected: "Ditolak",
+  INSPECTING: "Inspeksi",
+  REGISTERED: "Terdaftar",
+  IN_WAREHOUSE: "Di Gudang",
+  IN_REPAIR: "Perbaikan",
+  READY: "Siap Jual",
+  PUBLISHED: "Marketplace",
+  SOLD: "Terjual",
+  REJECTED: "Ditolak",
 };
 
 const RepairForm = () => {
@@ -237,11 +237,11 @@ const RepairForm = () => {
                 </div>
                 <span
                   className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold border ${
-                    vehicleInfo.status === "in_repair"
+                    vehicleInfo.status === "IN_REPAIR"
                       ? "bg-orange-500/20 text-orange-500 border-orange-500/30"
-                      : vehicleInfo.status === "in_warehouse"
+                      : vehicleInfo.status === "IN_WAREHOUSE"
                         ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
-                        : vehicleInfo.status === "ready"
+                        : vehicleInfo.status === "READY"
                           ? "bg-green-500/20 text-green-500 border-green-500/30"
                           : "bg-blue-500/20 text-blue-500 border-blue-500/30"
                   }`}
