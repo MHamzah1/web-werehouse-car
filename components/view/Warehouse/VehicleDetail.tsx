@@ -365,19 +365,6 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   {disbursementActionLabel}
                 </Link>
               )}
-              {(vehicle.status === "IN_WAREHOUSE" ||
-                vehicle.status === "IN_REPAIR" ||
-                vehicle.status === "REGISTERED") && (
-                <Link
-                  href={generateUrlWithEncryptedParams(
-                    "/warehouse/repairs/create",
-                    { vehicleId: vehicle.id },
-                  )}
-                  className="flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-500/20 text-orange-600 dark:text-orange-400 font-semibold text-sm hover:bg-orange-500/30 transition-colors border border-orange-500/30"
-                >
-                  <FiTool /> Repair Order
-                </Link>
-              )}
 
               {/* Publish / Edit Listing — muncul saat status READY atau PUBLISHED */}
               {(vehicle.status === "READY" || vehicle.status === "PUBLISHED") && (
