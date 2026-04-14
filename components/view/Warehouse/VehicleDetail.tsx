@@ -7,12 +7,14 @@ import {
   fetchVehicleDetail,
   createDisbursement,
   CreateDisbursementData,
+  Disbursement,
   placeVehicleByZoneType,
   fetchInspectionsByVehicle,
   fetchRepairsByVehicle,
   fetchRepairsForDisbursement,
   RepairForDisbursement,
   fetchZonesByShowroom,
+  fetchDisbursementByVehicle,
   markVehicleReadyAndPlace,
   clearSuccess,
   clearError,
@@ -107,6 +109,9 @@ const VehicleDetail = ({ id }: { id: string }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isDisbursementModalOpen, setIsDisbursementModalOpen] = useState(false);
+  const [vehicleDisbursement, setVehicleDisbursement] =
+    useState<Disbursement | null>(null);
+  const [isCheckingDisbursement, setIsCheckingDisbursement] = useState(true);
   const barcodeRef = useRef<HTMLDivElement>(null);
 
   const handlePrintQRCode = () => {
@@ -186,6 +191,33 @@ const VehicleDetail = ({ id }: { id: string }) => {
     dispatch(fetchRepairsByVehicle(id));
   }, [dispatch, id]);
 
+  useEffect(() => {
+    let isMounted = true;
+    setIsCheckingDisbursement(true);
+
+    dispatch(fetchDisbursementByVehicle(id))
+      .unwrap()
+      .then((data) => {
+        if (isMounted) {
+          setVehicleDisbursement(data);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setVehicleDisbursement(null);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsCheckingDisbursement(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, id]);
+
   // Fetch zones for ready zone placement
   useEffect(() => {
     if (selectedShowroom?.id) {
@@ -233,6 +265,17 @@ const VehicleDetail = ({ id }: { id: string }) => {
     label: vehicle.status,
     color: "bg-slate-500/20 text-slate-500 dark:text-slate-400",
   };
+  const canDisburseByStatus =
+    vehicle.status === "REGISTERED" || vehicle.status === "IN_WAREHOUSE";
+  const hasActiveDisbursement =
+    !!vehicleDisbursement && vehicleDisbursement.status !== "cancelled";
+  const canCreateDisbursement =
+    canDisburseByStatus && !hasActiveDisbursement && !isCheckingDisbursement;
+  const disbursementActionLabel =
+    vehicleDisbursement?.status === "pending" ||
+    vehicleDisbursement?.status === "dp_paid"
+      ? "Lanjutkan Pencairan"
+      : "Lihat Pencairan";
 
   const images = vehicle.images || [];
   const getImageUrl = (url: string) =>
@@ -291,8 +334,20 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiClipboard /> Mulai Inspeksi
                 </Link>
               )}
-              {(vehicle.status === "REGISTERED" ||
-                vehicle.status === "IN_WAREHOUSE") && (
+              {canDisburseByStatus && isCheckingDisbursement && (
+                <button
+                  disabled
+                  className={`flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all disabled:cursor-wait ${
+                    isDark
+                      ? "bg-slate-700/70 text-slate-300"
+                      : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  Memeriksa Pencairan...
+                </button>
+              )}
+              {canCreateDisbursement && (
                 <button
                   onClick={() => setIsDisbursementModalOpen(true)}
                   disabled={actionLoading}
@@ -300,6 +355,15 @@ const VehicleDetail = ({ id }: { id: string }) => {
                 >
                   <FiSend /> Pencairan Dana
                 </button>
+              )}
+              {hasActiveDisbursement && vehicleDisbursement && (
+                <Link
+                  href={`/warehouse/disbursements/${encryptSlug(vehicleDisbursement.id)}`}
+                  className="flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-500/20 transition-colors border border-emerald-500/30"
+                >
+                  <FiExternalLink />
+                  {disbursementActionLabel}
+                </Link>
               )}
               {(vehicle.status === "IN_WAREHOUSE" ||
                 vehicle.status === "IN_REPAIR" ||
@@ -1274,7 +1338,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
       )}
 
       {/* ============ PENCAIRAN DANA MODAL ============ */}
-      {isDisbursementModalOpen && vehicle && (
+      {isDisbursementModalOpen && vehicle && canCreateDisbursement && (
         <DisbursementVehicleModal
           vehicle={vehicle}
           isDark={isDark}
@@ -1284,7 +1348,8 @@ const VehicleDetail = ({ id }: { id: string }) => {
           onSubmit={(data: CreateDisbursementData) => {
             dispatch(createDisbursement(data))
               .unwrap()
-              .then(() => {
+              .then((created) => {
+                setVehicleDisbursement(created?.data ?? created);
                 setIsDisbursementModalOpen(false);
                 dispatch(fetchVehicleDetail(id));
               })
