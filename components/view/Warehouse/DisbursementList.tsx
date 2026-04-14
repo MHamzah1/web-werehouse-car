@@ -892,9 +892,12 @@ const CreateDisbursementModal = ({
   };
 
   const handleSubmit = () => {
-    if (!selectedVehicleId) return;
+    if (!selectedVehicleId || !selectedVehicle) return;
     onSubmit({
       warehouseVehicleId: selectedVehicleId,
+      sellerId: selectedVehicle.sellerId,
+      offerPrice: Number(selectedVehicle.askingPrice),
+      totalDeduction,
       tempoDays,
       deductions: deductions.filter((d) => d.description && d.amount > 0),
       notes: notes || undefined,

@@ -277,19 +277,21 @@ export interface DisbursementDeduction {
 export interface DisbursementPayment {
   id: string;
   disbursementId: string;
-  periodNumber: number;
+  periodNumber?: number;
   amount: number;
-  remainingAfter: number;
+  remainingAfter?: number;
   paymentMethod?: string;
   paymentReference?: string;
+  reference?: string;
   notes?: string;
-  type: string;
-  processedById: string;
+  type?: string;
+  processedById?: string;
   processedBy?: {
     id: string;
     fullName: string;
   };
   paidAt: string;
+  createdAt?: string;
 }
 
 export interface Disbursement {
@@ -305,7 +307,8 @@ export interface Disbursement {
   dpPaidAt?: string;
   fullyPaidAt?: string;
   paymentDeadline?: string;
-  tempodays: number;
+  tempoDays?: number;
+  tempodays?: number;
   status: DisbursementStatus;
   dpPaymentMethod?: string;
   settlementPaymentMethod?: string;
@@ -334,6 +337,20 @@ export interface DisbursementWithDetails extends Disbursement {
     sellerName: string;
     sellerPhone: string;
   };
+  warehouseVehicle?: {
+    id: string;
+    brandName: string;
+    modelName: string;
+    year: number;
+    color: string;
+    licensePlate: string;
+    barcode: string;
+    askingPrice: number;
+    status: string;
+    images?: string[];
+    sellerName: string;
+    sellerPhone: string;
+  };
   seller?: {
     id: string;
     fullName: string;
@@ -349,6 +366,7 @@ export interface CreateDisbursementData {
   warehouseVehicleId: string;
   sellerId: string;
   offerPrice: number;
+  totalDeduction?: number;
   tempoDays?: number;
   deductions?: {
     description: string;
@@ -360,6 +378,7 @@ export interface CreateDisbursementData {
 }
 
 export interface PayDisbursementDpData {
+  amount?: number;
   dpAmount: number;
   paymentMethod?: string;
   paymentReference?: string;
@@ -367,6 +386,7 @@ export interface PayDisbursementDpData {
 }
 
 export interface SettleDisbursementData {
+  amount?: number;
   paymentMethod?: string;
   paymentReference?: string;
   notes?: string;

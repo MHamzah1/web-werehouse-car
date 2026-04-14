@@ -6,7 +6,6 @@ import { RootState, AppDispatch } from "@/lib/state/store";
 import {
   fetchDisbursementDetail,
   makeDisbursementPayment,
-  fetchDisbursementPayments,
   cancelDisbursement,
   DisbursementPayment,
   MakeDisbursementPaymentData,
@@ -20,7 +19,6 @@ import {
   FiDollarSign,
   FiCalendar,
   FiUser,
-  FiHash,
   FiClock,
   FiCheckCircle,
   FiXCircle,
@@ -70,28 +68,108 @@ const disbursementStatusConfig: Record<
 // ============================
 // HELPERS
 // ============================
-const formatPrice = (n: number | string) =>
+const toSafeNumber = (n: number | string | null | undefined) => {
+  const parsed = Number(n ?? 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const formatPrice = (n: number | string | null | undefined) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(Number(n));
+  }).format(toSafeNumber(n));
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+const formatDate = (d?: string | null) =>
+  d
+    ? new Date(d).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
+
+const formatDateTime = (d?: string | null) =>
+  d
+    ? new Date(d).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "-";
+
+type TimelinePayment = DisbursementPayment & {
+  createdAt?: string;
+  periodNumber?: number;
+  remainingAfter?: number;
+  type?: string;
+};
+
+const normalizePaymentType = (
+  payment: TimelinePayment,
+  index: number,
+  totalPayments: number,
+  remainingAfter: number,
+) => {
+  const note = String(payment.type || payment.notes || "").trim().toLowerCase();
+
+  if (note === "dp" || note === "dp payment" || note === "down payment") {
+    return "dp";
+  }
+
+  if (
+    note === "settlement" ||
+    note === "settlement payment" ||
+    note === "pelunasan"
+  ) {
+    return "settlement";
+  }
+
+  if (note === "installment" || note === "cicilan" || note === "payment") {
+    return remainingAfter <= 0 ? "settlement" : "installment";
+  }
+
+  if (remainingAfter <= 0) {
+    return totalPayments === 1 ? "settlement" : "settlement";
+  }
+
+  return index === 0 ? "dp" : "installment";
+};
+
+const buildPaymentTimeline = (
+  payments: TimelinePayment[],
+  finalAmount: number,
+) => {
+  const sorted = [...payments].sort((a, b) => {
+    const aTime = new Date(a.paidAt || a.createdAt || 0).getTime();
+    const bTime = new Date(b.paidAt || b.createdAt || 0).getTime();
+    return aTime - bTime;
   });
 
-const formatDateTime = (d: string) =>
-  new Date(d).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  let runningPaid = 0;
+
+  return sorted.map((payment, index) => {
+    const amount = toSafeNumber(payment.amount);
+    runningPaid += amount;
+    const remainingAfter = Math.max(finalAmount - runningPaid, 0);
+    const type =
+      payment.type ||
+      normalizePaymentType(payment, index, sorted.length, remainingAfter);
+
+    return {
+      ...payment,
+      amount,
+      periodNumber: payment.periodNumber || index + 1,
+      remainingAfter:
+        payment.remainingAfter !== undefined
+          ? toSafeNumber(payment.remainingAfter)
+          : remainingAfter,
+      type,
+    };
   });
+};
 
 const getDaysRemaining = (deadline: string) => {
   const now = new Date();
@@ -162,12 +240,33 @@ const DisbursementDetail = ({ id }: { id: string }) => {
     disbursementStatusConfig.pending;
   const StatusIcon = sc.icon;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const v = (disbursement as any).vehicle;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const seller = (disbursement as any).seller;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const processedBy = (disbursement as any).processedBy;
-  const payments: DisbursementPayment[] = disbursement.payments || [];
+  const disbursementAny = disbursement as any;
+  const v = disbursementAny.vehicle || disbursementAny.warehouseVehicle;
+  const seller = disbursementAny.seller;
+  const processedBy = disbursementAny.processedBy;
+  const tempoDays = disbursementAny.tempoDays ?? disbursementAny.tempodays;
+  const deductionItems = disbursement.deductions || [];
+  const totalDeduction = deductionItems.length
+    ? deductionItems.reduce((sum, item) => sum + toSafeNumber(item.amount), 0)
+    : toSafeNumber(disbursement.totalDeduction);
+  const finalAmount =
+    toSafeNumber(disbursement.offerPrice) > 0
+      ? Math.max(toSafeNumber(disbursement.offerPrice) - totalDeduction, 0)
+      : toSafeNumber(disbursement.finalAmount);
+  const payments = buildPaymentTimeline(
+    (disbursement.payments as TimelinePayment[]) || [],
+    finalAmount,
+  );
+  const totalPaid = payments.reduce(
+    (sum, payment) => sum + toSafeNumber(payment.amount),
+    0,
+  );
+  const dpPaid =
+    payments
+      .filter((payment) => payment.type === "dp")
+      .reduce((sum, payment) => sum + toSafeNumber(payment.amount), 0) ||
+    toSafeNumber(disbursement.dpAmount);
+  const remainingAmount = Math.max(finalAmount - totalPaid, 0);
   const daysRemaining = disbursement.paymentDeadline
     ? getDaysRemaining(disbursement.paymentDeadline)
     : null;
@@ -328,7 +427,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                 Total Potongan
               </p>
               <p className="text-sm font-bold text-red-500">
-                -{formatPrice(disbursement.totalDeduction)}
+                -{formatPrice(totalDeduction)}
               </p>
             </div>
             <div
@@ -340,7 +439,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                 Pencairan Final
               </p>
               <p className="text-sm font-bold text-emerald-500">
-                {formatPrice(disbursement.finalAmount)}
+                {formatPrice(finalAmount)}
               </p>
             </div>
             <div
@@ -352,12 +451,12 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                 DP Dibayar
               </p>
               <p className="text-sm font-bold text-blue-500">
-                {formatPrice(disbursement.dpAmount)}
+                {formatPrice(dpPaid)}
               </p>
             </div>
             <div
               className={`rounded-lg p-3 ${
-                Number(disbursement.remainingAmount) > 0
+                remainingAmount > 0
                   ? isDark
                     ? "bg-amber-500/5"
                     : "bg-amber-50"
@@ -368,7 +467,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
             >
               <p
                 className={`text-[10px] font-medium mb-1 ${
-                  Number(disbursement.remainingAmount) > 0
+                  remainingAmount > 0
                     ? isDark
                       ? "text-amber-400"
                       : "text-amber-500"
@@ -381,13 +480,13 @@ const DisbursementDetail = ({ id }: { id: string }) => {
               </p>
               <p
                 className={`text-sm font-bold ${
-                  Number(disbursement.remainingAmount) > 0
+                  remainingAmount > 0
                     ? "text-amber-500"
                     : "text-emerald-500"
                 }`}
               >
-                {Number(disbursement.remainingAmount) > 0
-                  ? formatPrice(disbursement.remainingAmount)
+                {remainingAmount > 0
+                  ? formatPrice(remainingAmount)
                   : "Lunas"}
               </p>
             </div>
@@ -402,7 +501,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
               <p
                 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}
               >
-                {disbursement.tempodays} hari
+                {tempoDays ?? "-"} hari
               </p>
             </div>
           </div>
@@ -533,7 +632,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                 Total Potongan
               </span>
               <span className="text-sm font-bold text-red-500 font-mono">
-                -{formatPrice(disbursement.totalDeduction)}
+                -{formatPrice(totalDeduction)}
               </span>
             </div>
           </div>
@@ -592,12 +691,10 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                   Total Dibayar
                 </span>
                 <span className="text-sm font-bold text-emerald-500 font-mono">
-                  {formatPrice(
-                    payments.reduce((sum, p) => sum + Number(p.amount), 0),
-                  )}
+                  {formatPrice(totalPaid)}
                 </span>
               </div>
-              {Number(disbursement.remainingAmount) > 0 && (
+              {remainingAmount > 0 && (
                 <div className="flex items-center justify-between mt-1">
                   <span
                     className={`text-xs ${isDark ? "text-amber-400" : "text-amber-500"}`}
@@ -605,7 +702,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
                     Sisa belum dibayar
                   </span>
                   <span className="text-xs font-bold text-amber-500 font-mono">
-                    {formatPrice(disbursement.remainingAmount)}
+                    {formatPrice(remainingAmount)}
                   </span>
                 </div>
               )}
@@ -619,6 +716,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
         <PaymentModal
           isDark={isDark}
           disbursement={disbursement}
+          remainingAmount={remainingAmount}
           actionLoading={actionLoading}
           onClose={() => setShowPaymentModal(false)}
           onSubmit={handlePayment}
@@ -636,7 +734,7 @@ const PaymentPeriodCard = ({
   isDark,
   isLast,
 }: {
-  payment: DisbursementPayment;
+  payment: TimelinePayment;
   isDark: boolean;
   isLast: boolean;
 }) => {
@@ -651,6 +749,11 @@ const PaymentPeriodCard = ({
     installment: "text-amber-500 bg-amber-500/10 border-amber-500/30",
     settlement: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
   };
+  const systemNote =
+    payment.notes &&
+    ["dp", "installment", "settlement", "dp payment", "settlement payment"].includes(
+      payment.notes.trim().toLowerCase(),
+    );
 
   return (
     <div className="flex gap-3">
@@ -667,7 +770,7 @@ const PaymentPeriodCard = ({
                   : "bg-slate-200 text-slate-600"
           }`}
         >
-          {payment.periodNumber}
+          {payment.periodNumber ?? 1}
         </div>
         {!isLast && (
           <div
@@ -686,12 +789,14 @@ const PaymentPeriodCard = ({
               <span
                 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}
               >
-                Periode {payment.periodNumber}
+                Periode {payment.periodNumber ?? 1}
               </span>
               <span
-                className={`px-2 py-0.5 rounded text-[10px] font-bold border ${typeColor[payment.type] || typeColor.installment}`}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold border ${typeColor[payment.type || "installment"] || typeColor.installment}`}
               >
-                {typeLabel[payment.type] || payment.type}
+                {typeLabel[payment.type || "installment"] ||
+                  payment.type ||
+                  "Pembayaran"}
               </span>
             </div>
             <div
@@ -714,7 +819,7 @@ const PaymentPeriodCard = ({
                 </span>
               )}
             </div>
-            {payment.notes && (
+            {payment.notes && !systemNote && (
               <p
                 className={`text-xs mt-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}
               >
@@ -729,7 +834,7 @@ const PaymentPeriodCard = ({
             <p
               className={`text-[10px] ${isDark ? "text-slate-500" : "text-slate-400"}`}
             >
-              Sisa: {formatPrice(payment.remainingAfter)}
+              Sisa: {formatPrice(payment.remainingAfter ?? 0)}
             </p>
           </div>
         </div>
@@ -744,6 +849,7 @@ const PaymentPeriodCard = ({
 const PaymentModal = ({
   isDark,
   disbursement,
+  remainingAmount,
   actionLoading,
   onClose,
   onSubmit,
@@ -751,6 +857,7 @@ const PaymentModal = ({
   isDark: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   disbursement: any;
+  remainingAmount: number;
   actionLoading: boolean;
   onClose: () => void;
   onSubmit: (data: MakeDisbursementPaymentData) => void;
@@ -762,10 +869,10 @@ const PaymentModal = ({
   const [paymentReference, setPaymentReference] = useState("");
   const [notes, setNotes] = useState("");
 
-  const remaining = Number(disbursement.remainingAmount) || Number(disbursement.finalAmount);
+  const remaining = remainingAmount;
   const isDP = disbursement.status === "pending";
-  const parsedAmount = Number(amount) || 0;
-  const parsedPercent = Number(percent) || 0;
+  const parsedAmount = toSafeNumber(amount);
+  const parsedPercent = toSafeNumber(percent);
   const isValid = parsedAmount > 0 && parsedAmount <= remaining;
 
   // Saat user ketik nominal → hitung persen otomatis
