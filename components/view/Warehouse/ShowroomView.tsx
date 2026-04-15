@@ -15,7 +15,7 @@ import {
 } from "@/lib/state/slice/warehouse/warehouseSlice";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
-import { generateUrlWithEncryptedParams } from "@/lib/slug/slug";
+import { encryptSlug, generateUrlWithEncryptedParams } from "@/lib/slug/slug";
 import Link from "next/link";
 import {
   FiSearch,
@@ -1220,49 +1220,61 @@ const VehicleDetailModal = ({
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 mt-auto">
-                  {detail.actions.map((action) => (
-                    <ActionButton
-                      key={action.key}
-                      action={action}
-                      vehicle={detail.vehicle}
-                      actionLoading={actionLoading}
-                    />
-                  ))}
-                  {/* Ready to Sell - from status */}
-                  {(detail.vehicle.status === "IN_WAREHOUSE" ||
-                    detail.vehicle.status === "IN_REPAIR") && (
-                    <>
+                  {detail.workflow?.allowedActions?.canInspect && (
+                    <Link
+                      href={generateUrlWithEncryptedParams(
+                        "/warehouse/inspections/create",
+                        { vehicleId: detail.vehicle.id },
+                      )}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 font-semibold text-sm hover:bg-yellow-500/25 transition-colors border border-yellow-500/30"
+                    >
+                      <FiClipboard /> Inspeksi
+                    </Link>
+                  )}
+                  {(detail.workflow?.allowedActions?.canCreateRepair ||
+                    detail.repairs.length > 0) && (
+                    <Link
+                      href={generateUrlWithEncryptedParams(
+                        "/warehouse/repairs/create",
+                        { vehicleId: detail.vehicle.id },
+                      )}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400 font-semibold text-sm hover:bg-orange-500/25 transition-colors border border-orange-500/30"
+                    >
+                      <FiTool /> Repair
+                    </Link>
+                  )}
+                  {detail.workflow?.allowedActions?.canViewDisbursement &&
+                    detail.workflow?.activeDisbursementId && (
                       <Link
-                        href={generateUrlWithEncryptedParams(
-                          "/warehouse/repairs/create",
-                          { vehicleId: detail.vehicle.id },
-                        )}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400 font-semibold text-sm hover:bg-orange-500/25 transition-colors border border-orange-500/30"
+                        href={`/warehouse/disbursements/${encryptSlug(detail.workflow.activeDisbursementId)}`}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-500/20 transition-colors border border-emerald-500/30"
                       >
-                        <FiTool /> Repair
+                        <FiDollarSign /> Lihat Pencairan
                       </Link>
-                      <button
-                        onClick={() => {
-                          const readyZone = zones.find(
-                            (z) => z.type === "ready",
-                          );
-                          if (readyZone) {
-                            dispatch(
-                              markVehicleReadyAndPlace({
-                                vehicleId: detail.vehicle.id,
-                                zoneId: readyZone.id,
-                              }),
-                            );
-                          } else {
-                            toast.error("Zona ready belum tersedia.");
-                          }
-                        }}
-                        disabled={actionLoading}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/15 text-green-600 dark:text-green-400 font-semibold text-sm hover:bg-green-500/25 transition-colors border border-green-500/30 disabled:opacity-50"
-                      >
-                        <FiCheck /> Sudah Siap Jual
-                      </button>
-                    </>
+                    )}
+                  {detail.workflow?.allowedActions?.canMarkReady && (
+                    <button
+                      onClick={() => {
+                        dispatch(
+                          markVehicleReadyAndPlace({
+                            vehicleId: detail.vehicle.id,
+                          }),
+                        );
+                      }}
+                      disabled={actionLoading}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/15 text-green-600 dark:text-green-400 font-semibold text-sm hover:bg-green-500/25 transition-colors border border-green-500/30 disabled:opacity-50"
+                    >
+                      <FiCheck /> Sudah Siap Jual
+                    </button>
+                  )}
+                  {(detail.workflow?.allowedActions?.canPublishListing ||
+                    detail.workflow?.allowedActions?.canUnpublishListing) && (
+                    <Link
+                      href={`/warehouse/vehicles/${encryptSlug(detail.vehicle.id)}/publish`}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 font-semibold text-sm hover:bg-purple-500/25 transition-colors border border-purple-500/30"
+                    >
+                      <FiEye /> Kelola Listing
+                    </Link>
                   )}
                 </div>
               </div>

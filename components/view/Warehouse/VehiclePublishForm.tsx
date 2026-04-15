@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { CurrencyInputField, InputField } from "@/components/ui";
+import { encryptSlug } from "@/lib/slug/slug";
 import {
   FiArrowLeft,
   FiSave,
@@ -59,7 +60,12 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
   });
 
   const [highlightInput, setHighlightInput] = useState("");
-  const isPublished = selectedListing?.status === "PUBLISHED";
+  const workflow = selectedVehicle?.workflow;
+  const isPublished =
+    selectedListing?.status === "PUBLISHED" ||
+    workflow?.workflowStage === "PUBLISHED";
+  const canPublishListing = !!workflow?.allowedActions?.canPublishListing;
+  const canUnpublishListing = !!workflow?.allowedActions?.canUnpublishListing;
 
   // Load vehicle + existing listing
   useEffect(() => {
@@ -101,7 +107,7 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
         isPublished ? "Listing berhasil diupdate!" : "Kendaraan berhasil dipublish ke landing page!",
       );
       dispatch(clearListingSuccess());
-      router.push(`/warehouse/vehicles/${vehicleId}`);
+      router.push(`/warehouse/vehicles/${encryptSlug(vehicleId)}`);
     }
     if (error) {
       toast.error(error);
@@ -129,6 +135,10 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPublished && !canPublishListing) {
+      toast.error("Kendaraan belum memenuhi syarat publish dari backend");
+      return;
+    }
     if (!form.listingTitle.trim()) {
       toast.error("Judul listing wajib diisi");
       return;
@@ -146,10 +156,14 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
   };
 
   const handleUnpublish = () => {
+    if (!canUnpublishListing) {
+      toast.error("Listing ini tidak dapat diunpublish");
+      return;
+    }
     if (!confirm("Kendaraan akan dihapus dari landing page. Lanjutkan?")) return;
     dispatch(unpublishVehicle(vehicleId)).then(() => {
       toast.success("Kendaraan berhasil diunpublish");
-      router.push(`/warehouse/vehicles/${vehicleId}`);
+      router.push(`/warehouse/vehicles/${encryptSlug(vehicleId)}`);
     });
   };
 
@@ -215,6 +229,19 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-0">
+        {selectedVehicle && !isPublished && !canPublishListing && (
+          <div
+            className={`rounded-2xl border p-4 mb-6 ${
+              isDark
+                ? "bg-amber-500/10 border-amber-500/20 text-amber-200"
+                : "bg-amber-50 border-amber-200 text-amber-800"
+            }`}
+          >
+            Kendaraan belum bisa dipublish. Pastikan statusnya sudah READY,
+            inspeksi sudah approved, repair aktif tidak ada, dan pencairan
+            aktif sudah dibuat.
+          </div>
+        )}
         {/* ── Info Utama ── */}
         <div className={sectionClass}>
           <div className="flex items-center gap-2 mb-5">
@@ -449,7 +476,7 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
             <button
               type="button"
               onClick={handleUnpublish}
-              disabled={loading}
+              disabled={loading || !canUnpublishListing}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-500/50 text-red-500 hover:bg-red-500/10 transition-colors text-sm font-medium disabled:opacity-50"
             >
               <FiEyeOff className="w-4 h-4" />
@@ -459,7 +486,7 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
 
           <div className="flex gap-3 ml-auto">
             <Link
-              href={`/warehouse/vehicles/${vehicleId}`}
+              href={`/warehouse/vehicles/${encryptSlug(vehicleId)}`}
               className={`px-5 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
                 isDark
                   ? "border-slate-600 text-slate-300 hover:bg-slate-700"
@@ -471,7 +498,7 @@ const VehiclePublishForm = ({ vehicleId }: VehiclePublishFormProps) => {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isPublished && !canPublishListing)}
               className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 transition-colors text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (

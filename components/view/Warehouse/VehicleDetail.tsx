@@ -265,12 +265,17 @@ const VehicleDetail = ({ id }: { id: string }) => {
     label: vehicle.status,
     color: "bg-slate-500/20 text-slate-500 dark:text-slate-400",
   };
-  const canDisburseByStatus =
-    vehicle.status === "REGISTERED" || vehicle.status === "IN_WAREHOUSE";
+  const workflow = vehicle.workflow;
+  const allowedActions = workflow?.allowedActions;
   const hasActiveDisbursement =
-    !!vehicleDisbursement && vehicleDisbursement.status !== "cancelled";
-  const canCreateDisbursement =
-    canDisburseByStatus && !hasActiveDisbursement && !isCheckingDisbursement;
+    workflow?.requirements?.hasActiveDisbursement ||
+    (!!vehicleDisbursement && vehicleDisbursement.status !== "cancelled");
+  const disbursementId =
+    vehicleDisbursement?.id || workflow?.activeDisbursementId || null;
+  const canCreateDisbursement = !!allowedActions?.canCreateDisbursement;
+  const canMarkReady = !!allowedActions?.canMarkReady;
+  const canManageListing =
+    !!allowedActions?.canPublishListing || !!allowedActions?.canUnpublishListing;
   const disbursementActionLabel =
     vehicleDisbursement?.status === "pending" ||
     vehicleDisbursement?.status === "dp_paid"
@@ -323,7 +328,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
           <div className="flex flex-col gap-3 w-full md:w-auto">
             {/* Primary Actions */}
             <div className="flex flex-wrap gap-2">
-              {vehicle.status === "INSPECTING" && (
+              {allowedActions?.canInspect && (
                 <Link
                   href={generateUrlWithEncryptedParams(
                     "/warehouse/inspections/create",
@@ -334,7 +339,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiClipboard /> Mulai Inspeksi
                 </Link>
               )}
-              {canDisburseByStatus && isCheckingDisbursement && (
+              {hasActiveDisbursement && isCheckingDisbursement && (
                 <button
                   disabled
                   className={`flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all disabled:cursor-wait ${
@@ -356,18 +361,33 @@ const VehicleDetail = ({ id }: { id: string }) => {
                   <FiSend /> Pencairan Dana
                 </button>
               )}
-              {hasActiveDisbursement && vehicleDisbursement && (
+              {hasActiveDisbursement && disbursementId && !isCheckingDisbursement && (
                 <Link
-                  href={`/warehouse/disbursements/${encryptSlug(vehicleDisbursement.id)}`}
+                  href={`/warehouse/disbursements/${encryptSlug(disbursementId)}`}
                   className="flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-500/20 transition-colors border border-emerald-500/30"
                 >
                   <FiExternalLink />
                   {disbursementActionLabel}
                 </Link>
               )}
+              {canMarkReady && (
+                <button
+                  onClick={() =>
+                    dispatch(
+                      markVehicleReadyAndPlace({
+                        vehicleId: vehicle.id,
+                      }),
+                    )
+                  }
+                  disabled={actionLoading}
+                  className="flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500/15 text-green-600 dark:text-green-400 font-semibold text-sm hover:bg-green-500/25 transition-colors border border-green-500/30 disabled:opacity-50"
+                >
+                  <FiCheck /> Tandai Siap Jual
+                </button>
+              )}
 
               {/* Publish / Edit Listing — muncul saat status READY atau PUBLISHED */}
-              {(vehicle.status === "READY" || vehicle.status === "PUBLISHED") && (
+              {canManageListing && (
                 <Link
                   href={`/warehouse/vehicles/${encryptSlug(vehicle.id)}/publish`}
                   className={`flex flex-1 md:flex-none justify-center items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors border ${

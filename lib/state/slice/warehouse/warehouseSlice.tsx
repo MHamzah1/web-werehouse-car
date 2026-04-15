@@ -51,6 +51,52 @@ export type VehicleStatus =
   | "SOLD"
   | "REJECTED";
 
+export interface VehicleWorkflowAllowedActions {
+  canInspect: boolean;
+  canApproveInspection: boolean;
+  canRejectInspection: boolean;
+  canCreateRepair: boolean;
+  canUpdateRepair: boolean;
+  canCreateDisbursement: boolean;
+  canPayDisbursement: boolean;
+  canMarkReady: boolean;
+  canPublishListing: boolean;
+  canUnpublishListing: boolean;
+  canCreateSale: boolean;
+  canViewDisbursement: boolean;
+  canViewRepairHistory: boolean;
+}
+
+export interface VehicleWorkflowRequirements {
+  hasApprovedInspection: boolean;
+  latestInspectionRejected: boolean;
+  hasActiveRepair: boolean;
+  hasActiveDisbursement: boolean;
+  hasPublishedListing: boolean;
+}
+
+export interface VehicleWorkflowSummary {
+  workflowStage:
+    | "INSPECTION"
+    | "REPAIR"
+    | "FINANCE"
+    | "READY_FOR_LISTING"
+    | "PUBLISHED"
+    | "SOLD"
+    | "REJECTED";
+  latestInspection?: {
+    id: string;
+    status: InspectionStatus;
+    overallResult?: InspectionResult;
+    approvedAt?: string;
+    inspectedAt?: string;
+  } | null;
+  activeDisbursementId?: string | null;
+  activeRepairCount?: number;
+  requirements: VehicleWorkflowRequirements;
+  allowedActions: VehicleWorkflowAllowedActions;
+}
+
 export interface WarehouseVehicle {
   id: string;
   showroomId: string;
@@ -87,6 +133,7 @@ export interface WarehouseVehicle {
   inspections?: VehicleInspection[];
   placements?: VehiclePlacement[];
   repairs?: RepairOrder[];
+  workflow?: VehicleWorkflowSummary;
   createdAt: string;
   updatedAt: string;
 }
@@ -578,11 +625,13 @@ export interface ShowroomViewVehicle {
 }
 
 export interface ShowroomViewAction {
-  key: string;
+  key?: string;
+  action?: string;
   label: string;
-  method: string;
-  endpoint: string;
-  description: string;
+  enabled?: boolean;
+  method?: string;
+  endpoint?: string;
+  description?: string;
 }
 
 export interface ShowroomViewData {
@@ -625,6 +674,7 @@ export interface ShowroomViewVehicleDetail {
   purchases: PurchaseTransaction[];
   stockLogs: StockLog[];
   actions: ShowroomViewAction[];
+  workflow?: VehicleWorkflowSummary;
 }
 
 export interface ShowroomViewQueryParams {
@@ -1933,22 +1983,15 @@ export const fetchShowroomViewVehicle = createAsyncThunk<
 export const markVehicleReadyAndPlace = createAsyncThunk<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
-  { vehicleId: string; zoneId: string },
+  { vehicleId: string; zoneId?: string },
   { rejectValue: string }
 >(
   "warehouse/markVehicleReadyAndPlace",
-  async ({ vehicleId, zoneId }, { rejectWithValue }) => {
+  async ({ vehicleId }, { rejectWithValue }) => {
     try {
-      // Step 1: Mark vehicle as ready
-      await instanceAxios.post(
+      const res = await instanceAxios.post(
         `/warehouse/vehicles/${vehicleId}/mark-ready`,
         {},
-        { headers: getHeaders() },
-      );
-      // Step 2: Place in ready zone
-      const res = await instanceAxios.post(
-        `/warehouse/vehicles/${vehicleId}/place`,
-        { zoneId },
         { headers: getHeaders() },
       );
       return res.data?.data ?? res.data;
@@ -2572,8 +2615,7 @@ const warehouseSlice = createSlice({
       })
       .addCase(markVehicleReadyAndPlace.fulfilled, (state) => {
         state.actionLoading = false;
-        state.successMessage =
-          "Kendaraan siap jual & ditempatkan di zona ready!";
+        state.successMessage = "Kendaraan berhasil ditandai siap jual!";
       })
       .addCase(markVehicleReadyAndPlace.rejected, (state, action) => {
         state.actionLoading = false;
