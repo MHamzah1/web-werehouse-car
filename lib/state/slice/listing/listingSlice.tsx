@@ -176,7 +176,16 @@ export const unpublishVehicle = createAsyncThunk<
 // Public: Get published listings
 export const fetchPublicListings = createAsyncThunk<
   { data: VehicleListing[]; pagination: Pagination },
-  { page?: number; limit?: number; search?: string; brandName?: string; transmission?: string; minPrice?: number; maxPrice?: number },
+  {
+    page?: number;
+    limit?: number;
+    showroomId?: string;
+    search?: string;
+    brandName?: string;
+    transmission?: string;
+    minPrice?: number;
+    maxPrice?: number;
+  },
   { rejectValue: ErrorResponse }
 >("listing/fetchPublic", async (params, { rejectWithValue }) => {
   try {

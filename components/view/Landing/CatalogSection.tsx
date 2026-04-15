@@ -18,7 +18,7 @@ interface VehicleShowroom {
   address: string;
 }
 
-interface Vehicle {
+interface ListingVehicle {
   id: string;
   brandName: string;
   modelName: string;
@@ -34,25 +34,46 @@ interface Vehicle {
   showroom: VehicleShowroom | null;
 }
 
+interface PublicListingCard {
+  id: string;
+  vehicleId: string;
+  listingTitle: string;
+  askingPrice: number | string;
+  isNegotiable: boolean;
+  description: string | null;
+  highlights?: string[];
+  viewCount?: number;
+  vehicle: ListingVehicle;
+}
+
 interface ShowroomOption {
   id: string;
   name: string;
   city: string;
 }
 
-const formatCurrency = (val: number) =>
+const toNumber = (value: number | string | null | undefined) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
+const formatCurrency = (val: number | string) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(val);
+  }).format(toNumber(val));
 
 interface CatalogSectionProps {
   isFullPage?: boolean;
 }
 
 export default function CatalogSection({ isFullPage = false }: CatalogSectionProps) {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<PublicListingCard[]>([]);
   const [showrooms, setShowrooms] = useState<ShowroomOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -84,10 +105,10 @@ export default function CatalogSection({ isFullPage = false }: CatalogSectionPro
       if (filters.search) params.search = filters.search;
       if (filters.showroomId) params.showroomId = filters.showroomId;
 
-      const { data } = await instanceAxios.get("/public/vehicles", { params });
+      const { data } = await instanceAxios.get("/public/listings", { params });
       setVehicles(data.data || []);
-      setTotalPages(data.totalPages || 1);
-      setTotal(data.total || 0);
+      setTotalPages(data.pagination?.totalPages || 1);
+      setTotal(data.pagination?.totalRecords || 0);
     } catch {
       setVehicles([]);
     } finally {
@@ -258,12 +279,16 @@ export default function CatalogSection({ isFullPage = false }: CatalogSectionPro
   );
 }
 
-function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
+function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
+  const vehicle = listing.vehicle;
   const imageUrl = vehicle.images?.[0];
+  const vehicleId = listing.vehicleId || vehicle.id;
+  const displayTitle =
+    listing.listingTitle?.trim() || `${vehicle.brandName} ${vehicle.modelName}`.trim();
 
   return (
     <Link
-      href={`/vehicles/${vehicle.id}`}
+      href={`/vehicles/${vehicleId}`}
       className="group block rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 transform hover:-translate-y-1"
     >
       {/* Image */}
@@ -305,8 +330,8 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
         {/* Price badge */}
         <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3">
           <span className="px-2 sm:px-4 py-1 sm:py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs sm:text-sm rounded-lg sm:rounded-xl shadow-lg">
-            {vehicle.askingPrice > 0
-              ? formatCurrency(vehicle.askingPrice)
+            {toNumber(listing.askingPrice) > 0
+              ? formatCurrency(listing.askingPrice)
               : "Hubungi Kami"}
           </span>
         </div>
@@ -322,7 +347,7 @@ function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
       {/* Content */}
       <div className="p-3 sm:p-4 md:p-5">
         <h3 className="text-sm sm:text-base md:text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors truncate">
-          {vehicle.brandName} {vehicle.modelName}
+          {displayTitle}
         </h3>
 
         {/* Specs */}

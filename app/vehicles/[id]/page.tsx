@@ -20,7 +20,7 @@ interface VehicleShowroom {
   address: string;
 }
 
-interface VehicleDetail {
+interface ListingVehicleDetail {
   id: string;
   brandName: string;
   modelName: string;
@@ -29,25 +29,52 @@ interface VehicleDetail {
   transmission: string | null;
   fuelType: string | null;
   mileage: number;
-  askingPrice: number;
+  askingPrice: number | string;
   images: string[];
   description: string | null;
   condition: string | null;
   showroom: VehicleShowroom | null;
 }
 
-const formatCurrency = (val: number) =>
+interface PublicListingDetail {
+  id: string;
+  vehicleId: string;
+  listingId: string;
+  listingTitle: string;
+  askingPrice: number | string;
+  description: string | null;
+  isNegotiable: boolean;
+  highlights?: string[];
+  videoUrl?: string | null;
+  contactName?: string | null;
+  contactPhone?: string | null;
+  contactWhatsapp?: string | null;
+  viewCount?: number;
+  publishedAt?: string | null;
+  vehicle: ListingVehicleDetail;
+}
+
+const toNumber = (value: number | string | null | undefined) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
+};
+
+const formatCurrency = (val: number | string) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
-  }).format(val);
+  }).format(toNumber(val));
 
 export default function VehicleDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [vehicle, setVehicle] = useState<VehicleDetail | null>(null);
+  const [listing, setListing] = useState<PublicListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -57,8 +84,8 @@ export default function VehicleDetailPage() {
     if (!id) return;
     (async () => {
       try {
-        const { data } = await instanceAxios.get(`/public/vehicles/${id}`);
-        setVehicle(data);
+        const { data } = await instanceAxios.get(`/public/listings/vehicle/${id}`);
+        setListing(data);
       } catch {
         setError(true);
       } finally {
@@ -68,12 +95,19 @@ export default function VehicleDetailPage() {
   }, [id]);
 
   const openWhatsApp = () => {
-    if (!vehicle?.showroom?.whatsapp) return;
-    const phone = vehicle.showroom.whatsapp.startsWith("62")
-      ? vehicle.showroom.whatsapp
-      : `62${vehicle.showroom.whatsapp.replace(/^0/, "")}`;
+    const vehicle = listing?.vehicle;
+    const phoneSource = listing?.contactWhatsapp || listing?.vehicle.showroom?.whatsapp;
+    if (!vehicle || !phoneSource) return;
+
+    const phone = phoneSource.startsWith("62")
+      ? phoneSource
+      : `62${phoneSource.replace(/^0/, "")}`;
+    const contactName =
+      listing?.contactName ||
+      listing?.vehicle.showroom?.name ||
+      "tim showroom";
     const message = encodeURIComponent(
-      `Halo ${vehicle.showroom.name}, saya tertarik dengan mobil *${vehicle.brandName} ${vehicle.modelName} ${vehicle.year}*${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah masih tersedia?`
+      `Halo ${contactName}, saya tertarik dengan mobil *${vehicle.brandName} ${vehicle.modelName} ${vehicle.year}*${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah masih tersedia?`
     );
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
@@ -86,7 +120,7 @@ export default function VehicleDetailPage() {
     );
   }
 
-  if (error || !vehicle) {
+  if (error || !listing?.vehicle) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
         <div className="text-center">
@@ -105,7 +139,9 @@ export default function VehicleDetailPage() {
     );
   }
 
+  const vehicle = listing.vehicle;
   const images = vehicle.images?.length > 0 ? vehicle.images : [];
+  const description = listing.description || vehicle.description;
 
   const specs = [
     { label: "Tahun", value: String(vehicle.year), icon: Calendar },
@@ -122,7 +158,6 @@ export default function VehicleDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      {/* Header */}
       <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <Link
@@ -143,16 +178,14 @@ export default function VehicleDetailPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
-          {/* Left: Images & Specs */}
           <div className="lg:col-span-3 space-y-5 sm:space-y-6">
-            {/* Gallery */}
             <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-slate-800">
               <div className="relative aspect-[16/10] bg-slate-900">
                 {images.length > 0 ? (
                   <>
                     <Image
                       src={images[activeImage]}
-                      alt={`${vehicle.brandName} ${vehicle.modelName}`}
+                      alt={listing.listingTitle || `${vehicle.brandName} ${vehicle.modelName}`}
                       fill
                       className="object-cover cursor-pointer"
                       sizes="(max-width: 1024px) 100vw, 60vw"
@@ -192,7 +225,6 @@ export default function VehicleDetailPage() {
                 )}
               </div>
 
-              {/* Thumbnails */}
               {images.length > 1 && (
                 <div className="flex gap-1.5 sm:gap-2 p-3 sm:p-4 bg-slate-900 overflow-x-auto">
                   {images.map((img, idx) => (
@@ -212,7 +244,6 @@ export default function VehicleDetailPage() {
               )}
             </div>
 
-            {/* Specs Grid */}
             <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6">
               <h3 className="text-base sm:text-lg font-bold mb-4">Spesifikasi</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -229,24 +260,21 @@ export default function VehicleDetailPage() {
               </div>
             </div>
 
-            {/* Description */}
-            {vehicle.description && (
+            {description && (
               <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6">
                 <h3 className="text-base sm:text-lg font-bold mb-3">Deskripsi</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed whitespace-pre-line">
-                  {vehicle.description}
+                  {description}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Right: Price & Contact */}
           <div className="lg:col-span-2">
             <div className="sticky top-20 sm:top-24 space-y-5 sm:space-y-6">
-              {/* Price Card */}
               <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6 shadow-xl">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-black mb-2">
-                  {vehicle.brandName} {vehicle.modelName}
+                  {listing.listingTitle || `${vehicle.brandName} ${vehicle.modelName}`}
                 </h1>
                 <p className="text-slate-400 text-xs sm:text-sm mb-5 sm:mb-6">
                   {vehicle.year} &middot; {vehicle.transmission || "-"} &middot; {vehicle.color || "-"}
@@ -255,9 +283,22 @@ export default function VehicleDetailPage() {
                 <div className="mb-5 sm:mb-6 p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/20">
                   <p className="text-[10px] sm:text-xs text-slate-400 mb-1">Harga</p>
                   <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    {vehicle.askingPrice > 0 ? formatCurrency(vehicle.askingPrice) : "Hubungi Kami"}
+                    {toNumber(listing.askingPrice) > 0 ? formatCurrency(listing.askingPrice) : "Hubungi Kami"}
                   </p>
                 </div>
+
+                {listing.highlights && listing.highlights.length > 0 && (
+                  <div className="mb-5 sm:mb-6 flex flex-wrap gap-2">
+                    {listing.highlights.map((highlight, index) => (
+                      <span
+                        key={`${highlight}-${index}`}
+                        className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] sm:text-xs font-semibold"
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <button
                   onClick={openWhatsApp}
@@ -273,7 +314,6 @@ export default function VehicleDetailPage() {
                 </p>
               </div>
 
-              {/* Showroom */}
               {vehicle.showroom && (
                 <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6 shadow-lg">
                   <h3 className="text-sm sm:text-base font-bold mb-4">Lokasi Showroom</h3>
@@ -295,10 +335,10 @@ export default function VehicleDetailPage() {
                       <p className="text-xs text-slate-400 leading-relaxed">{vehicle.showroom.address}</p>
                     </div>
 
-                    {vehicle.showroom.phone && (
+                    {(listing.contactPhone || vehicle.showroom.phone) && (
                       <div className="flex items-center gap-3">
                         <Phone className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                        <p className="text-xs text-slate-400">+{vehicle.showroom.phone}</p>
+                        <p className="text-xs text-slate-400">+{listing.contactPhone || vehicle.showroom.phone}</p>
                       </div>
                     )}
                   </div>
@@ -309,7 +349,6 @@ export default function VehicleDetailPage() {
         </div>
       </div>
 
-      {/* Lightbox */}
       {lightboxOpen && images.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
           <button
@@ -345,7 +384,6 @@ export default function VehicleDetailPage() {
         </div>
       )}
 
-      {/* Floating WA Mobile */}
       <div className="fixed bottom-5 right-5 lg:hidden z-40">
         <button
           onClick={openWhatsApp}
