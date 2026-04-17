@@ -101,7 +101,7 @@ export default function HeroSection() {
           {/* Car illustration overlaying the typography */}
           <div className="pointer-events-none relative z-20 mt-[-32px] flex justify-center sm:mt-[-52px] md:absolute md:right-[-1.5rem] md:bottom-2 md:mt-0 md:w-[68%] lg:right-[-2rem] lg:bottom-0 lg:w-[72%] xl:right-[-2.5rem] xl:bottom-[-0.5rem] xl:w-[74%]">
             <Image
-              src="/image/car-sedan.png"
+              src="/Image/car-sedan.png"
               alt="Hero Car Art"
               width={1400}
               height={400}

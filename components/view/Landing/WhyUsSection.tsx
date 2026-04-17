@@ -19,14 +19,14 @@ export default function WhyUsSection() {
     <section className="relative">
       {/* VIDEO BLOCK */}
       <div className="relative bg-kcunk-black overflow-hidden">
-        {/* Background image placeholder: dark road / car on highway */}
         <div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0 bg-cover bg-center opacity-35"
           style={{
-            backgroundImage:
-              "linear-gradient(120deg, #1a1a20 0%, #0b0b0d 55%, #2a0f14 100%)",
+            backgroundImage: "url('/landing/why-us-bg.jpg')",
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-kcunk-black via-transparent to-kcunk-red/10" />
         {/* Subtle light streaks */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />

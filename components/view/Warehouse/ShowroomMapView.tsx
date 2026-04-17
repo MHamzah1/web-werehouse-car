@@ -123,6 +123,8 @@ const zoneTypeConfig: Record<
   },
 };
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8081";
+
 // ============================
 // HELPERS
 // ============================
@@ -302,28 +304,44 @@ const ShowroomMapView = () => {
           className={`px-4 sm:px-6 py-3 flex flex-wrap items-center gap-4 sm:gap-6 ${isDark ? "bg-slate-800/30" : "bg-slate-50"}`}
         >
           <div className="flex items-center gap-2">
-            <TbCar className={`text-lg ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
-            <span className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}>
+            <TbCar
+              className={`text-lg ${isDark ? "text-emerald-400" : "text-emerald-600"}`}
+            />
+            <span
+              className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}
+            >
               {totalVehicles}
             </span>
-            <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+            <span
+              className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}
+            >
               kendaraan
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <FiMapPin className={`text-sm ${isDark ? "text-blue-400" : "text-blue-600"}`} />
-            <span className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}>
+            <FiMapPin
+              className={`text-sm ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            />
+            <span
+              className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}
+            >
               {totalZones}
             </span>
-            <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+            <span
+              className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}
+            >
               zona
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+            <span
+              className={`text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}
+            >
               Kapasitas:
             </span>
-            <span className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}>
+            <span
+              className={`text-xs font-bold ${isDark ? "text-white" : "text-slate-700"}`}
+            >
               {totalOccupied}/{totalCapacity}
             </span>
             {totalCapacity > 0 && (
@@ -343,7 +361,9 @@ const ShowroomMapView = () => {
               </div>
             )}
           </div>
-          <div className={`hidden md:block h-4 w-px ${isDark ? "bg-slate-700" : "bg-slate-200"}`} />
+          <div
+            className={`hidden md:block h-4 w-px ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
+          />
           <div className="flex flex-wrap items-center gap-3">
             {Object.entries(zoneTypeConfig).map(([type, cfg]) => (
               <div key={type} className="flex items-center gap-1.5">
@@ -553,9 +573,7 @@ const ShowroomMapView = () => {
                       vehicle={vehicle}
                       isDark={isDark}
                       baseUrl={baseUrl}
-                      onDoubleClick={() =>
-                        handleVehicleDoubleClick(vehicle.id)
-                      }
+                      onDoubleClick={() => handleVehicleDoubleClick(vehicle.id)}
                     />
                   ))}
                 </div>

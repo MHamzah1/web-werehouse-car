@@ -15,7 +15,11 @@ export default function ContactSection() {
 
   return (
     <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
-      <div className="absolute inset-0 bg-slate-900" />
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-16"
+        style={{ backgroundImage: "url('/landing/contact-bg.jpg')" }}
+      />
+      <div className="absolute inset-0 bg-slate-950/96" />
       <div className="absolute -top-20 -left-20 w-72 h-72 bg-green-500/5 rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

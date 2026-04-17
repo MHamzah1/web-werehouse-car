@@ -18,7 +18,7 @@ export default function AboutSection() {
           <div className="relative">
             <div className="relative aspect-[4/5] sm:aspect-[5/6] rounded-sm overflow-hidden shadow-2xl bg-kcunk-black">
               <Image
-                src="/about-car.png"
+                src="/about-car.jpg"
                 alt="K-Cunk Motor - Mobil Bekas Berkualitas"
                 fill
                 className="object-cover"

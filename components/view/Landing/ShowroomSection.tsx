@@ -48,7 +48,11 @@ export default function ShowroomSection() {
 
   return (
     <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" />
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: "url('/landing/showroom-bg.jpg')" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-slate-950/95" />
       <div className="absolute -bottom-20 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

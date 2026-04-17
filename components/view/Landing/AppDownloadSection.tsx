@@ -68,14 +68,15 @@ export default function AppDownloadSection() {
 
           {/* RIGHT — Car image */}
           <div className="relative flex items-center justify-center">
-            <div className="relative w-full max-w-lg aspect-[4/3]">
+            <div className="relative w-full max-w-lg aspect-[4/3] overflow-hidden rounded-[28px] border border-kcunk-line/70 bg-kcunk-black shadow-2xl shadow-kcunk-red/10">
               <Image
-                src="/app-car.png"
+                src="/app-car.jpg"
                 alt="Mobil K-Cunk Motor"
                 fill
-                className="object-contain drop-shadow-[0_30px_40px_rgba(230,57,70,0.35)]"
+                className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
+              <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-kcunk-red/15" />
             </div>
             {/* Red glow behind */}
             <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
