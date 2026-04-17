@@ -77,7 +77,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative bg-kcunk-black pt-16 lg:pt-20 pb-28 sm:pb-32 md:pb-40 overflow-hidden">
+    <section className="relative bg-kcunk-black pt-16 lg:pt-20 pb-32 sm:pb-36 md:pb-44 lg:pb-52 overflow-hidden">
       {/* Split background */}
       <div className="absolute inset-0 flex">
         <div className="w-1/2 bg-kcunk-red" />
@@ -87,27 +87,26 @@ export default function HeroSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Giant brand typography */}
-        <div className="relative pt-10 sm:pt-14 md:pt-20 lg:pt-24">
-          <h1 className="kcunk-heading text-center leading-[0.9] text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px] xl:text-[220px] tracking-tighter select-none">
+        <div className="relative pt-10 sm:pt-14 md:pt-20 lg:pt-24 min-h-[340px] sm:min-h-[450px] md:min-h-[590px] lg:min-h-[690px] xl:min-h-[760px]">
+          <h1 className="relative z-10 kcunk-heading text-center leading-[0.9] text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px] xl:text-[220px] tracking-tighter select-none">
             <span
               className="inline-block text-transparent"
               style={{ WebkitTextStroke: "2px #ffffff" }}
             >
-              K-CUNK
+              K
             </span>
-            <span className="inline-block ml-3 sm:ml-5 md:ml-7 text-white">
-              MOTOR
-            </span>
+            <span className=" text-white">-CUNK</span>
           </h1>
 
           {/* Car illustration overlaying the typography */}
-          <div className="relative mt-[-30px] sm:mt-[-50px] md:mt-[-80px] lg:mt-[-110px] flex justify-center">
+          <div className="pointer-events-none relative z-20 mt-[-32px] flex justify-center sm:mt-[-52px] md:absolute md:right-[-1.5rem] md:bottom-2 md:mt-0 md:w-[68%] lg:right-[-2rem] lg:bottom-0 lg:w-[72%] xl:right-[-2.5rem] xl:bottom-[-0.5rem] xl:w-[74%]">
             <Image
-              src="/image/hero-car.png"
+              src="/image/car-sedan.png"
               alt="Hero Car Art"
-              width={1020}
+              width={1400}
               height={400}
-              className="w-full max-w-[820px] h-auto drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)]"
+              priority
+              className="h-auto w-full max-w-[520px] object-contain drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)] sm:max-w-[680px] md:max-w-none"
             />
           </div>
         </div>
