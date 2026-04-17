@@ -17,7 +17,7 @@ const WHATSAPP_NUMBER = "6281574865632";
 export default function LandingPage() {
   const openWhatsApp = () => {
     const message = encodeURIComponent(
-      "Halo K-CUNK MOTOR, saya tertarik untuk konsultasi mengenai mobil. Bisa dibantu?"
+      "Halo K-CUNK MOTOR, saya tertarik untuk konsultasi mengenai mobil. Bisa dibantu?",
     );
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, "_blank");
   };
@@ -32,8 +32,8 @@ export default function LandingPage() {
       <WhyUsSection />
       <AppDownloadSection />
       <NewsSection />
-      <ShowroomSection />
-      <ContactSection />
+      {/* <ShowroomSection />
+      <ContactSection /> */}
       <LandingFooter />
 
       {/* Floating WhatsApp */}

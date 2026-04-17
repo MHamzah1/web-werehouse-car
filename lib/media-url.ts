@@ -1,5 +1,7 @@
 const DEFAULT_API_URL = "http://localhost:8081/api";
 
+const LOCAL_MEDIA_HOSTS = new Set(["localhost", "127.0.0.1", "::1"]);
+
 export function getApiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/+$/, "");
 }
@@ -26,4 +28,25 @@ export function resolveMediaUrl(url?: string | null) {
 
   const baseUrl = getMediaBaseUrl();
   return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
+function isPrivateIpv4(hostname: string) {
+  return (
+    hostname.startsWith("10.") ||
+    hostname.startsWith("192.168.") ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname)
+  );
+}
+
+export function shouldBypassImageOptimization(url?: string | null) {
+  if (!url || !/^https?:\/\//i.test(url)) {
+    return false;
+  }
+
+  try {
+    const hostname = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    return LOCAL_MEDIA_HOSTS.has(hostname) || isPrivateIpv4(hostname);
+  } catch {
+    return false;
+  }
 }

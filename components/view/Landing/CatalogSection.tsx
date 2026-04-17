@@ -13,7 +13,10 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
-import { resolveMediaUrl } from "@/lib/media-url";
+import {
+  resolveMediaUrl,
+  shouldBypassImageOptimization,
+} from "@/lib/media-url";
 
 interface VehicleShowroom {
   id: string;
@@ -301,6 +304,7 @@ export default function CatalogSection({ isFullPage = false }: CatalogSectionPro
 function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
   const vehicle = listing.vehicle;
   const imageUrl = resolveMediaUrl(vehicle.images?.[0]);
+  const unoptimizedImage = shouldBypassImageOptimization(imageUrl);
   const vehicleId = listing.vehicleId || vehicle.id;
   const displayTitle =
     listing.listingTitle?.trim() ||
@@ -321,6 +325,7 @@ function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
             src={imageUrl}
             alt={displayTitle}
             fill
+            unoptimized={unoptimizedImage}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />

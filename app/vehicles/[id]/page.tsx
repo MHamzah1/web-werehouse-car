@@ -9,7 +9,10 @@ import {
   ChevronLeft, ChevronRight, X, Palette, Shield, Eye,
 } from "lucide-react";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
-import { resolveMediaUrl } from "@/lib/media-url";
+import {
+  resolveMediaUrl,
+  shouldBypassImageOptimization,
+} from "@/lib/media-url";
 
 interface VehicleShowroom {
   id: string;
@@ -189,6 +192,7 @@ export default function VehicleDetailPage() {
                       src={images[activeImage]}
                       alt={listing.listingTitle || `${vehicle.brandName} ${vehicle.modelName}`}
                       fill
+                      unoptimized={shouldBypassImageOptimization(images[activeImage])}
                       className="object-cover cursor-pointer"
                       sizes="(max-width: 1024px) 100vw, 60vw"
                       onClick={() => setLightboxOpen(true)}
@@ -239,7 +243,14 @@ export default function VehicleDetailPage() {
                           : "border-transparent opacity-50 hover:opacity-80"
                       }`}
                     >
-                      <Image src={img} alt={`Foto ${idx + 1}`} fill className="object-cover" sizes="80px" />
+                      <Image
+                        src={img}
+                        alt={`Foto ${idx + 1}`}
+                        fill
+                        unoptimized={shouldBypassImageOptimization(img)}
+                        className="object-cover"
+                        sizes="80px"
+                      />
                     </button>
                   ))}
                 </div>
@@ -370,6 +381,7 @@ export default function VehicleDetailPage() {
               src={images[activeImage]}
               alt={`Foto ${activeImage + 1}`}
               fill
+              unoptimized={shouldBypassImageOptimization(images[activeImage])}
               className="object-contain"
               sizes="100vw"
             />
