@@ -7,6 +7,7 @@ import AboutSection from "./AboutSection";
 import CatalogSection from "./CatalogSection";
 import WhyUsSection from "./WhyUsSection";
 import AppDownloadSection from "./AppDownloadSection";
+import NewsSection from "./NewsSection";
 import ShowroomSection from "./ShowroomSection";
 import ContactSection from "./ContactSection";
 import LandingFooter from "./LandingFooter";
@@ -30,6 +31,7 @@ export default function LandingPage() {
       <AboutSection />
       <WhyUsSection />
       <AppDownloadSection />
+      <NewsSection />
       <ShowroomSection />
       <ContactSection />
       <LandingFooter />
