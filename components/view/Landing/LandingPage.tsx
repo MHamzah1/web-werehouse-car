@@ -2,6 +2,7 @@
 
 import LandingNavbar from "./LandingNavbar";
 import HeroSection from "./HeroSection";
+import ServicesSection from "./ServicesSection";
 import AboutSection from "./AboutSection";
 import CatalogSection from "./CatalogSection";
 import WhyUsSection from "./WhyUsSection";
@@ -23,6 +24,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-kcunk-ink">
       <LandingNavbar />
       <HeroSection />
+      <ServicesSection />
       <CatalogSection />
       <AboutSection />
       <WhyUsSection />
@@ -33,7 +35,7 @@ export default function LandingPage() {
       {/* Floating WhatsApp */}
       <button
         onClick={openWhatsApp}
-        className="fixed bottom-5 right-5 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-2xl shadow-green-500/30 flex items-center justify-center hover:scale-110 transition-transform"
+        className="fixed bottom-5 right-5 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-2xl shadow-green-500/30 flex items-center justify-center hover:scale-110 transition-transform"
         aria-label="Chat WhatsApp"
       >
         <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7 fill-current">

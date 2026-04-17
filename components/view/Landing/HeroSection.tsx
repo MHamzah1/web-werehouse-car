@@ -3,11 +3,39 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search } from "lucide-react";
+import Image from "next/image";
 
 const YEARS = Array.from({ length: 16 }, (_, i) => String(2025 - i));
-const MAKES = ["Toyota", "Honda", "Daihatsu", "Suzuki", "Mitsubishi", "Nissan", "Mazda", "BMW", "Mercedes-Benz", "Audi"];
-const MODELS = ["Avanza", "Xenia", "Innova", "Brio", "Jazz", "Mobilio", "Ertiga", "Pajero", "Fortuner", "HR-V"];
-const MILEAGES = ["< 20.000 km", "20.000 - 50.000 km", "50.000 - 100.000 km", "> 100.000 km"];
+const MAKES = [
+  "Toyota",
+  "Honda",
+  "Daihatsu",
+  "Suzuki",
+  "Mitsubishi",
+  "Nissan",
+  "Mazda",
+  "BMW",
+  "Mercedes-Benz",
+  "Audi",
+];
+const MODELS = [
+  "Avanza",
+  "Xenia",
+  "Innova",
+  "Brio",
+  "Jazz",
+  "Mobilio",
+  "Ertiga",
+  "Pajero",
+  "Fortuner",
+  "HR-V",
+];
+const MILEAGES = [
+  "< 20.000 km",
+  "20.000 - 50.000 km",
+  "50.000 - 100.000 km",
+  "> 100.000 km",
+];
 const TRANSMISSIONS = ["Automatic", "Manual", "CVT", "Semi-Automatic"];
 const CONDITIONS = ["Baru", "Bekas", "Seperti Baru", "Perlu Perbaikan"];
 
@@ -31,8 +59,8 @@ export default function HeroSection() {
     condition: "",
   });
 
-  const handleChange = (key: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLSelectElement>) =>
+  const handleChange =
+    (key: keyof typeof form) => (e: React.ChangeEvent<HTMLSelectElement>) =>
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleSearch = () => {
@@ -74,7 +102,13 @@ export default function HeroSection() {
 
           {/* Car illustration overlaying the typography */}
           <div className="relative mt-[-30px] sm:mt-[-50px] md:mt-[-80px] lg:mt-[-110px] flex justify-center">
-            <HeroCarArt />
+            <Image
+              src="/image/hero-car.png"
+              alt="Hero Car Art"
+              width={1020}
+              height={400}
+              className="w-full max-w-[820px] h-auto drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)]"
+            />
           </div>
         </div>
       </div>
