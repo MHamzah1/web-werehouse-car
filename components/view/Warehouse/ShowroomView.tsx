@@ -13,6 +13,7 @@ import {
   ShowroomViewVehicle,
   ShowroomViewVehicleDetail,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { encryptSlug, generateUrlWithEncryptedParams } from "@/lib/slug/slug";
@@ -170,11 +171,6 @@ const ShowroomView = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
 
   // Fetch data
   const loadData = useCallback(() => {
@@ -973,8 +969,7 @@ const VehicleDetailModal = ({
   const [activeTab, setActiveTab] = useState<
     "info" | "inspection" | "repair" | "history"
   >("info");
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   return (
     <div

@@ -9,6 +9,7 @@ import {
   clearSuccess,
   createInspectionWithItems,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import {
@@ -85,12 +86,7 @@ const InspectionForm = () => {
   >(initializeItems);
   const [repairOrders, setRepairOrders] = useState<RepairOrderEntry[]>([]);
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   useEffect(() => {
     if (selectedShowroom?.id) {

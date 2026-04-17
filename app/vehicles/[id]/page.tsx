@@ -9,6 +9,7 @@ import {
   ChevronLeft, ChevronRight, X, Palette, Shield, Eye,
 } from "lucide-react";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 interface VehicleShowroom {
   id: string;
@@ -140,7 +141,8 @@ export default function VehicleDetailPage() {
   }
 
   const vehicle = listing.vehicle;
-  const images = vehicle.images?.length > 0 ? vehicle.images : [];
+  const images =
+    vehicle.images?.length > 0 ? vehicle.images.map((image) => resolveMediaUrl(image)) : [];
   const description = listing.description || vehicle.description;
 
   const specs = [

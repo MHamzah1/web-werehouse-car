@@ -12,6 +12,7 @@ import {
   clearSuccess,
   clearError,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -190,12 +191,7 @@ const DisbursementDetail = ({ id }: { id: string }) => {
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   const loadDetail = useCallback(() => {
     if (id) dispatch(fetchDisbursementDetail(id));

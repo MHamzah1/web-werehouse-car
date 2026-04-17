@@ -21,6 +21,7 @@ import {
   PhoneInputField,
 } from "@/components/ui";
 import { encryptSlug } from "@/lib/slug/slug";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 // ── helper types ──────────────────────────────────────────────
 interface BrandItem {
@@ -157,16 +158,10 @@ const VehicleEditForm = ({ id }: VehicleEditFormProps) => {
         setSelectedModelId(selectedVehicle.carModelId);
       }
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-        "http://localhost:8080/uploads/";
-
       // Populate existing images as previews
       if (selectedVehicle.images && selectedVehicle.images.length > 0) {
         setImagePreviews(
-          selectedVehicle.images.map((img) =>
-            img.startsWith("http") ? img : baseUrl + img,
-          ),
+          selectedVehicle.images.map((img) => resolveMediaUrl(img)),
         );
       }
 

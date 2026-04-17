@@ -83,7 +83,7 @@ const VehicleRegisterForm = () => {
     sellerPhone: "62",
     sellerWhatsapp: "62",
     sellerKtp: "",
-    description: "",
+    // description: "",
     condition: "bekas",
     ownershipStatus: "Tangan Pertama",
     taxStatus: "Pajak Hidup",
@@ -224,7 +224,7 @@ const VehicleRegisterForm = () => {
         sellerPhone: form.sellerPhone,
         sellerWhatsapp: form.sellerWhatsapp,
         sellerKtp: form.sellerKtp,
-        description: form.description,
+        // description: form.description,
         condition: form.condition,
         notes: form.notes,
         images: imageFiles,
@@ -528,7 +528,7 @@ const VehicleRegisterForm = () => {
               onChange={handleChange}
             />
 
-            <div className="md:col-span-2">
+            {/* <div className="md:col-span-2">
               <label
                 className={`block text-sm font-medium mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}
               >
@@ -541,7 +541,7 @@ const VehicleRegisterForm = () => {
                 rows={4}
                 className={`w-full px-4 py-2.5 ${isDark ? "bg-slate-700/50 border-slate-600/50 text-white" : "bg-white border-slate-300 text-slate-900"} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50`}
               />
-            </div>
+            </div> */}
             <div className="md:col-span-2">
               <label
                 className={`block text-sm font-medium mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}

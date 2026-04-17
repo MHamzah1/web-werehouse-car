@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight, Eye, ArrowRight,
 } from "lucide-react";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 interface VehicleShowroom {
   id: string;
@@ -281,7 +282,7 @@ export default function CatalogSection({ isFullPage = false }: CatalogSectionPro
 
 function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
   const vehicle = listing.vehicle;
-  const imageUrl = vehicle.images?.[0];
+  const imageUrl = resolveMediaUrl(vehicle.images?.[0]);
   const vehicleId = listing.vehicleId || vehicle.id;
   const displayTitle =
     listing.listingTitle?.trim() || `${vehicle.brandName} ${vehicle.modelName}`.trim();

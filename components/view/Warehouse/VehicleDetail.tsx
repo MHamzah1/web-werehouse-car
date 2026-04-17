@@ -19,6 +19,7 @@ import {
   clearSuccess,
   clearError,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -180,10 +181,7 @@ const VehicleDetail = ({ id }: { id: string }) => {
   };
 
   // Fallback API Image Base URL
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
+  const getImageUrl = resolveMediaUrl;
 
   useEffect(() => {
     dispatch(fetchVehicleDetail(id));
@@ -283,8 +281,6 @@ const VehicleDetail = ({ id }: { id: string }) => {
       : "Lihat Pencairan";
 
   const images = vehicle.images || [];
-  const getImageUrl = (url: string) =>
-    url.startsWith("http") ? url : baseUrl + url;
 
   return (
     <div className={`space-y-6 max-w-7xl mx-auto px-2 sm:px-4 pb-12`}>
@@ -1541,12 +1537,7 @@ const DisbursementVehicleModal = ({
   const finalAmount = offerPrice - totalDeduction;
 
   const thumbnail = vehicle.images?.[0];
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   const addDeduction = () => {
     setDeductions([

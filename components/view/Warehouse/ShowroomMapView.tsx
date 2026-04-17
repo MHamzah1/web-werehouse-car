@@ -9,6 +9,7 @@ import {
   clearError,
   ShowroomViewVehicle,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 import { encryptSlug } from "@/lib/slug/slug";
@@ -152,11 +153,6 @@ const ShowroomMapView = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [expandedZones, setExpandedZones] = useState<Set<string>>(new Set());
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
 
   // Load data
   const loadData = useCallback(() => {
@@ -611,8 +607,7 @@ const ParkingSlot = ({
     color: "text-slate-500",
     bg: "bg-slate-100 border-slate-300",
   };
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   const thumbnail = vehicle.thumbnail || vehicle.images?.[0];
 

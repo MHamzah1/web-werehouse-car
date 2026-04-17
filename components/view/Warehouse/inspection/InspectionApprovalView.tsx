@@ -12,6 +12,7 @@ import {
   clearSelectedInspection,
   InspectionItem,
 } from "@/lib/state/slice/warehouse/warehouseSlice";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
@@ -54,12 +55,7 @@ const InspectionApprovalView: React.FC<InspectionApprovalViewProps> = ({
   const [rejectMode, setRejectMode] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL_IMAGES ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api$/, "") ||
-    "http://localhost:8081";
-  const getImageUrl = (url: string) =>
-    url?.startsWith("http") ? url : baseUrl + url;
+  const getImageUrl = resolveMediaUrl;
 
   useEffect(() => {
     dispatch(fetchInspectionDetail(inspectionId));
