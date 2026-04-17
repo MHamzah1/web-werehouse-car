@@ -131,3 +131,39 @@
     transform: translateY(0);
   }
 }
+
+/* ============================================== */
+/* K-CUNK MOTOR — Public / External Design Tokens */
+/* ============================================== */
+@theme inline {
+  /* Brand */
+  --color-kcunk-red: #e63946;
+  --color-kcunk-red-dark: #c1121f;
+  --color-kcunk-red-light: #f26d78;
+  --color-kcunk-black: #0b0b0d;
+  --color-kcunk-ink: #14141a;
+  --color-kcunk-slate: #6c757d;
+  --color-kcunk-muted: #8a8f98;
+  --color-kcunk-line: #e7e9ee;
+  --color-kcunk-surface: #f7f8fa;
+  --color-kcunk-white: #ffffff;
+}
+
+@layer utilities {
+  .kcunk-heading {
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .kcunk-italic-logo {
+    font-style: italic;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+  .kcunk-outline-text {
+    color: transparent;
+    -webkit-text-stroke: 2px #ffffff;
+    font-weight: 900;
+  }
+}
+

@@ -1,222 +1,312 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowRight, Shield, Star, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Search } from "lucide-react";
 
-const slides = [
-  {
-    badge: "Showroom Terpercaya Sejak 2007",
-    title: "Mobil Bekas",
-    highlight: "Berkualitas",
-    subtitle: "Harga Realistis",
-    description:
-      "Temukan mobil impian Anda dari koleksi kendaraan yang telah melewati inspeksi ketat 50+ titik pengecekan.",
-    accent: "from-cyan-500 to-blue-600",
-  },
-  {
-    badge: "3 Cabang Showroom di Tulungagung",
-    title: "Proses",
-    highlight: "Transparan",
-    subtitle: "Tanpa Drama",
-    description:
-      "Setiap kendaraan dilengkapi dokumen resmi. Tanpa biaya tersembunyi, tanpa manipulasi odometer.",
-    accent: "from-emerald-500 to-teal-500",
-  },
-  {
-    badge: "Inspeksi Profesional",
-    title: "Kualitas",
-    highlight: "Terjamin",
-    subtitle: "100% Terverifikasi",
-    description:
-      "Tim inspektur berpengalaman memeriksa eksterior, interior, mesin, kelistrikan, dan chassis setiap unit.",
-    accent: "from-orange-500 to-red-500",
-  },
-];
+const YEARS = Array.from({ length: 16 }, (_, i) => String(2025 - i));
+const MAKES = ["Toyota", "Honda", "Daihatsu", "Suzuki", "Mitsubishi", "Nissan", "Mazda", "BMW", "Mercedes-Benz", "Audi"];
+const MODELS = ["Avanza", "Xenia", "Innova", "Brio", "Jazz", "Mobilio", "Ertiga", "Pajero", "Fortuner", "HR-V"];
+const MILEAGES = ["< 20.000 km", "20.000 - 50.000 km", "50.000 - 100.000 km", "> 100.000 km"];
+const TRANSMISSIONS = ["Automatic", "Manual", "CVT", "Semi-Automatic"];
+const CONDITIONS = ["Baru", "Bekas", "Seperti Baru", "Perlu Perbaikan"];
 
-const stats = [
-  { icon: Star, value: "17+", label: "Tahun Pengalaman" },
-  { icon: Users, value: "1000+", label: "Pelanggan Puas" },
-  { icon: Shield, value: "50+", label: "Titik Inspeksi" },
-];
+const formatRupiah = (value: number) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(value);
 
 export default function HeroSection() {
-  const [current, setCurrent] = useState(0);
+  const router = useRouter();
+  const [priceMax, setPriceMax] = useState(500_000_000);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+  const [form, setForm] = useState({
+    year: "",
+    make: "",
+    model: "",
+    mileage: "",
+    transmission: "",
+    condition: "",
+  });
 
-  const slide = slides[current];
+  const handleChange = (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const goTo = (dir: number) => {
-    setCurrent((prev) => (prev + dir + slides.length) % slides.length);
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (form.year) params.set("year", form.year);
+    if (form.make) params.set("make", form.make);
+    if (form.model) params.set("model", form.model);
+    if (form.mileage) params.set("mileage", form.mileage);
+    if (form.transmission) params.set("transmission", form.transmission);
+    if (form.condition) params.set("condition", form.condition);
+    if (priceMax < 2_600_000_000) params.set("priceMax", String(priceMax));
+    const qs = params.toString();
+    router.push(`/katalog${qs ? `?${qs}` : ""}`);
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+    <section className="relative bg-kcunk-black pt-16 lg:pt-20 pb-28 sm:pb-32 md:pb-40 overflow-hidden">
+      {/* Split background */}
+      <div className="absolute inset-0 flex">
+        <div className="w-1/2 bg-kcunk-red" />
+        <div className="w-1/2 bg-kcunk-black" />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40" />
 
-      {/* Animated orbs */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl animate-pulse" />
-      <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-blue-600/10 blur-3xl animate-pulse" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-slate-800/30 blur-3xl" />
-
-      {/* Slide overlay accent */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${slide.accent} opacity-[0.04] transition-all duration-1000`}
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-28 lg:py-0">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          {/* Left - Text */}
-          <div className="text-center lg:text-left">
-            {/* Badge */}
-            <div
-              key={`badge-${current}`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold backdrop-blur-md bg-white/10 text-cyan-400 border border-cyan-500/30 mb-6 animate-[fadeInUp_0.5s_ease-out]"
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Giant brand typography */}
+        <div className="relative pt-10 sm:pt-14 md:pt-20 lg:pt-24">
+          <h1 className="kcunk-heading text-center leading-[0.9] text-[64px] sm:text-[96px] md:text-[140px] lg:text-[180px] xl:text-[220px] tracking-tighter select-none">
+            <span
+              className="inline-block text-transparent"
+              style={{ WebkitTextStroke: "2px #ffffff" }}
             >
-              <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-              {slide.badge}
-            </div>
+              K-CUNK
+            </span>
+            <span className="inline-block ml-3 sm:ml-5 md:ml-7 text-white">
+              MOTOR
+            </span>
+          </h1>
 
-            {/* Title */}
-            <h1
-              key={`title-${current}`}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black leading-[1.1] mb-6 animate-[fadeInUp_0.5s_ease-out_0.1s_both]"
-            >
-              <span className="text-white">{slide.title}</span>
-              <br />
-              <span
-                className={`bg-gradient-to-r ${slide.accent} bg-clip-text text-transparent`}
-              >
-                {slide.highlight}
-              </span>
-              <br />
-              <span className="text-white">{slide.subtitle}</span>
-            </h1>
-
-            {/* Description */}
-            <p
-              key={`desc-${current}`}
-              className="text-sm sm:text-base lg:text-lg text-slate-400 max-w-lg mx-auto lg:mx-0 mb-8 leading-relaxed animate-[fadeInUp_0.5s_ease-out_0.2s_both]"
-            >
-              {slide.description}
-            </p>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-[fadeInUp_0.5s_ease-out_0.3s_both]">
-              <Link
-                href="/katalog"
-                className={`group inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r ${slide.accent} text-white font-bold text-sm sm:text-base shadow-2xl hover:brightness-110 hover:scale-[1.02] transition-all`}
-              >
-                Lihat Katalog
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/kontak"
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/20 text-white font-semibold text-sm sm:text-base hover:bg-white/5 hover:border-white/30 backdrop-blur-sm transition-all"
-              >
-                Hubungi Kami
-              </Link>
-            </div>
-          </div>
-
-          {/* Right - Stats & Visual */}
-          <div className="flex flex-col items-center lg:items-end gap-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full max-w-md">
-              {stats.map((stat, i) => (
-                <div
-                  key={i}
-                  className="backdrop-blur-md bg-white/[0.06] rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-white/10 text-center hover:bg-white/10 transition-colors"
-                >
-                  <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 mx-auto mb-2" />
-                  <p className="text-xl sm:text-2xl md:text-3xl font-black text-white">
-                    {stat.value}
-                  </p>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Decorative card */}
-            <div className="relative w-full max-w-md">
-              <div className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl p-6 sm:p-8">
-                <div className="flex items-center gap-4 mb-4">
-                  <div
-                    className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${slide.accent} flex items-center justify-center shadow-lg`}
-                  >
-                    <Shield className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-white font-bold text-sm sm:text-base">
-                      Garansi Kualitas
-                    </p>
-                    <p className="text-slate-500 text-xs">
-                      Setiap unit terinspeksi
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    "Mesin & Transmisi Terverifikasi",
-                    "Dokumen BPKB/STNK Asli",
-                    "Bebas Banjir & Tabrakan",
-                  ].map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-xs sm:text-sm text-slate-300"
-                    >
-                      <div
-                        className={`w-5 h-5 rounded-full bg-gradient-to-r ${slide.accent} flex items-center justify-center flex-shrink-0`}
-                      >
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Car illustration overlaying the typography */}
+          <div className="relative mt-[-30px] sm:mt-[-50px] md:mt-[-80px] lg:mt-[-110px] flex justify-center">
+            <HeroCarArt />
           </div>
         </div>
       </div>
 
-      {/* Slide Controls */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4">
-        <button
-          onClick={() => goTo(-1)}
-          className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`h-2 rounded-full transition-all duration-500 ${
-                i === current
-                  ? "w-8 bg-gradient-to-r from-cyan-400 to-blue-500"
-                  : "w-2 bg-white/30 hover:bg-white/50"
-              }`}
+      {/* Search Bar — overlaps bottom */}
+      <div className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 md:-mt-24">
+        <div className="bg-white rounded-sm shadow-2xl shadow-black/30 p-5 sm:p-7 md:p-8 border-t-4 border-kcunk-red">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            <SelectField
+              label="Select Year"
+              value={form.year}
+              onChange={handleChange("year")}
+              options={YEARS}
             />
-          ))}
+            <SelectField
+              label="Select Make"
+              value={form.make}
+              onChange={handleChange("make")}
+              options={MAKES}
+            />
+            <SelectField
+              label="Select Model"
+              value={form.model}
+              onChange={handleChange("model")}
+              options={MODELS}
+            />
+
+            {/* Price Range */}
+            <div className="lg:col-span-1">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-kcunk-ink mb-1">
+                Price
+              </label>
+              <div className="text-xs text-kcunk-slate mb-2">
+                {formatRupiah(7_900_000)} – {formatRupiah(priceMax)}
+              </div>
+              <input
+                type="range"
+                min={7_900_000}
+                max={2_600_000_000}
+                step={1_000_000}
+                value={priceMax}
+                onChange={(e) => setPriceMax(Number(e.target.value))}
+                className="w-full h-1.5 rounded-full bg-kcunk-line accent-[#e63946] cursor-pointer"
+              />
+            </div>
+
+            <SelectField
+              label="Select Mileage"
+              value={form.mileage}
+              onChange={handleChange("mileage")}
+              options={MILEAGES}
+            />
+            <SelectField
+              label="Select Transmission"
+              value={form.transmission}
+              onChange={handleChange("transmission")}
+              options={TRANSMISSIONS}
+            />
+            <SelectField
+              label="Select Condition"
+              value={form.condition}
+              onChange={handleChange("condition")}
+              options={CONDITIONS}
+            />
+
+            {/* Search Button */}
+            <div className="flex items-end">
+              <button
+                onClick={handleSearch}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-kcunk-red hover:bg-kcunk-red-dark text-white font-bold text-sm uppercase tracking-wider rounded-sm shadow-md transition-colors"
+              >
+                <Search className="w-4 h-4" />
+                Search Inventory
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => goTo(1)}
-          className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
       </div>
     </section>
+  );
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: string[];
+}) {
+  return (
+    <div>
+      <label className="block text-[11px] font-bold uppercase tracking-wider text-kcunk-ink mb-1">
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={onChange}
+        className="w-full h-10 px-3 text-sm text-kcunk-ink bg-white border border-kcunk-line rounded-sm outline-none focus:border-kcunk-red transition-colors cursor-pointer"
+      >
+        <option value="">--Select--</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function HeroCarArt() {
+  return (
+    <svg
+      viewBox="0 0 900 300"
+      className="w-full max-w-[820px] h-auto drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)]"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f5f5f7" />
+          <stop offset="45%" stopColor="#e6e6ea" />
+          <stop offset="100%" stopColor="#a8a8ad" />
+        </linearGradient>
+        <linearGradient id="carGlass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2d2d33" />
+          <stop offset="100%" stopColor="#0b0b0d" />
+        </linearGradient>
+        <radialGradient id="wheelRim" cx="50%" cy="50%" r="50%">
+          <stop offset="40%" stopColor="#1a1a1f" />
+          <stop offset="70%" stopColor="#3a3a40" />
+          <stop offset="100%" stopColor="#0b0b0d" />
+        </radialGradient>
+        <radialGradient id="shadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.5)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </radialGradient>
+      </defs>
+
+      {/* Ground shadow */}
+      <ellipse cx="450" cy="270" rx="360" ry="14" fill="url(#shadow)" />
+
+      {/* Car body */}
+      <path
+        d="M120 240 L170 180 Q215 135 280 120 L420 98 Q500 90 580 108 L700 140 Q760 158 790 200 L795 240 Z"
+        fill="url(#carBody)"
+        stroke="#bcbcc2"
+        strokeWidth="1.5"
+      />
+      {/* Roof cabin */}
+      <path
+        d="M260 148 Q295 115 360 108 L510 105 Q580 108 630 140 L650 168 L260 168 Z"
+        fill="url(#carGlass)"
+        opacity="0.95"
+      />
+      {/* Roof highlight */}
+      <path
+        d="M280 150 Q310 125 365 120 L505 118 Q575 120 620 148"
+        fill="none"
+        stroke="#ffffff"
+        strokeOpacity="0.15"
+        strokeWidth="2"
+      />
+
+      {/* Side skirt */}
+      <path
+        d="M140 240 L170 225 L770 225 L790 240 Z"
+        fill="#1a1a1f"
+        opacity="0.7"
+      />
+
+      {/* Headlight */}
+      <path
+        d="M720 170 L782 182 L790 200 L735 198 Z"
+        fill="#ffd86b"
+        opacity="0.9"
+      />
+      <path
+        d="M720 170 L782 182 L790 200 L735 198 Z"
+        fill="url(#carBody)"
+        opacity="0.2"
+      />
+      {/* Taillight */}
+      <rect x="135" y="195" width="30" height="14" rx="2" fill="#e63946" />
+
+      {/* Door lines */}
+      <path d="M290 168 L290 240" stroke="#9b9ba0" strokeWidth="1.2" />
+      <path d="M440 168 L440 240" stroke="#9b9ba0" strokeWidth="1.2" />
+      <path d="M575 168 L575 240" stroke="#9b9ba0" strokeWidth="1.2" />
+
+      {/* Handles */}
+      <rect x="310" y="200" width="30" height="4" rx="2" fill="#9b9ba0" />
+      <rect x="460" y="200" width="30" height="4" rx="2" fill="#9b9ba0" />
+      <rect x="595" y="200" width="30" height="4" rx="2" fill="#9b9ba0" />
+
+      {/* Wheels */}
+      <g>
+        <circle cx="250" cy="245" r="42" fill="#0b0b0d" />
+        <circle cx="250" cy="245" r="30" fill="url(#wheelRim)" />
+        <circle cx="250" cy="245" r="10" fill="#0b0b0d" />
+        {[0, 45, 90, 135].map((rot) => (
+          <rect
+            key={rot}
+            x="248"
+            y="220"
+            width="4"
+            height="50"
+            fill="#3a3a40"
+            transform={`rotate(${rot} 250 245)`}
+          />
+        ))}
+      </g>
+      <g>
+        <circle cx="660" cy="245" r="42" fill="#0b0b0d" />
+        <circle cx="660" cy="245" r="30" fill="url(#wheelRim)" />
+        <circle cx="660" cy="245" r="10" fill="#0b0b0d" />
+        {[0, 45, 90, 135].map((rot) => (
+          <rect
+            key={rot}
+            x="658"
+            y="220"
+            width="4"
+            height="50"
+            fill="#3a3a40"
+            transform={`rotate(${rot} 660 245)`}
+          />
+        ))}
+      </g>
+    </svg>
   );
 }

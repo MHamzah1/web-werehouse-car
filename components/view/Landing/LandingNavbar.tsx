@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Car, LogIn } from "lucide-react";
+import { Menu, X, Search, LogIn, ChevronDown } from "lucide-react";
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -35,29 +35,22 @@ export default function LandingNavbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-slate-900/95 backdrop-blur-xl shadow-xl shadow-black/20"
-          : "bg-slate-900/50 backdrop-blur-md"
+          ? "bg-kcunk-black shadow-lg shadow-black/40"
+          : "bg-kcunk-black/95 backdrop-blur-sm"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <div className="w-9 h-9 lg:w-11 lg:h-11 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:shadow-cyan-500/50 transition-shadow">
-                <Car className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-              </div>
-            </div>
-            <div>
-              <p className="font-black text-sm lg:text-base text-white tracking-wide leading-tight">
-                K-CUNK MOTOR
-              </p>
-              <p className="text-[9px] lg:text-[10px] text-slate-400 font-medium tracking-widest uppercase leading-tight">
-                Cepat, dan Terpercaya
-              </p>
-            </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="kcunk-italic-logo text-2xl lg:text-3xl text-kcunk-red leading-none">
+              K<span className="text-white">-Cunk</span>
+            </span>
+            <span className="kcunk-italic-logo text-2xl lg:text-3xl text-white leading-none tracking-tight">
+              Motor
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -66,18 +59,31 @@ export default function LandingNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 xl:px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                className={`inline-flex items-center gap-1 px-3 xl:px-4 py-2 text-[13px] font-semibold uppercase tracking-wider transition-colors ${
                   isActive(link.href)
-                    ? "text-cyan-400 bg-slate-800/50"
-                    : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
+                    ? "text-kcunk-red"
+                    : "text-white hover:text-kcunk-red"
                 }`}
               >
                 {link.label}
+                {link.label === "Katalog Mobil" && (
+                  <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                )}
               </Link>
             ))}
+
+            {/* Search icon */}
+            <button
+              aria-label="Cari"
+              className="ml-2 w-9 h-9 flex items-center justify-center text-white hover:text-kcunk-red transition-colors"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Login Staff CTA */}
             <Link
               href="/auth/login"
-              className="ml-3 inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:brightness-110 transition-all shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40"
+              className="ml-2 inline-flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold uppercase tracking-wider bg-kcunk-red text-white rounded-sm hover:bg-kcunk-red-dark transition-colors shadow-md"
             >
               <LogIn className="w-4 h-4" />
               Login Staff
@@ -87,7 +93,8 @@ export default function LandingNavbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/50 transition-colors"
+            className="lg:hidden p-2 rounded-sm text-white hover:text-kcunk-red transition-colors"
+            aria-label="Toggle menu"
           >
             {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -96,19 +103,19 @@ export default function LandingNavbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`lg:hidden border-t border-slate-800/50 backdrop-blur-xl overflow-hidden transition-all duration-300 ${
+        className={`lg:hidden border-t border-white/10 overflow-hidden transition-all duration-300 ${
           isOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="px-4 py-3 space-y-1 bg-slate-900/95">
+        <div className="px-4 py-3 space-y-1 bg-kcunk-black">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`block px-4 py-3 rounded-xl font-semibold text-sm transition-all ${
+              className={`block px-4 py-3 rounded-sm font-semibold text-sm uppercase tracking-wider transition-colors ${
                 isActive(link.href)
-                  ? "text-cyan-400 bg-cyan-500/10"
-                  : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
+                  ? "text-kcunk-red bg-white/5"
+                  : "text-white hover:text-kcunk-red hover:bg-white/5"
               }`}
             >
               {link.label}
@@ -116,7 +123,7 @@ export default function LandingNavbar() {
           ))}
           <Link
             href="/auth/login"
-            className="flex items-center justify-center gap-2 mt-2 px-5 py-3 text-sm font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl"
+            className="flex items-center justify-center gap-2 mt-2 px-5 py-3 text-sm font-bold uppercase tracking-wider bg-kcunk-red text-white rounded-sm hover:bg-kcunk-red-dark transition-colors"
           >
             <LogIn className="w-4 h-4" />
             Login Staff
