@@ -10,7 +10,7 @@ const navLinks = [
   { label: "Katalog Mobil", href: "/katalog" },
   { label: "Tentang Kami", href: "/tentang" },
   { label: "Cabang", href: "/cabang" },
-  { label: "Kontak", href: "/kontak" },
+  // { label: "Kontak", href: "/kontak" },
 ];
 
 export default function LandingNavbar() {

@@ -1,107 +1,193 @@
 "use client";
 
 import Link from "next/link";
-import { Car } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock3,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 
-const menuLinks = [
-  { label: "Beranda", href: "/" },
-  { label: "Katalog Mobil", href: "/katalog" },
-  { label: "Tentang Kami", href: "/tentang" },
-  { label: "Cabang Kami", href: "/cabang" },
-  { label: "Kontak", href: "/kontak" },
+const WHATSAPP_NUMBER = "6281574865632";
+const WHATSAPP_DISPLAY = "+62 815-7486-5632";
+const ADDRESS_LINES = [
+  "Jl. Raya Prigi, Sripit, Talunkulon",
+  "Kec. Bandung, Tulungagung",
+  "Jawa Timur 66274",
+];
+
+const footerColumns = [
+  {
+    title: "Jelajahi",
+    items: [
+      { label: "Beranda", href: "/" },
+      { label: "Katalog Mobil", href: "/katalog" },
+      { label: "Tentang Kami", href: "/tentang" },
+      { label: "Kontak", href: "/kontak" },
+    ],
+  },
+  {
+    title: "Layanan",
+    items: [
+      { label: "Jual Beli Mobil", href: "/katalog" },
+      { label: "Tukar Tambah", href: "/kontak" },
+      { label: "Reservasi Survey", href: "/kontak" },
+      { label: "Konsultasi Gratis", href: "/kontak" },
+    ],
+  },
+  {
+    title: "Bantuan",
+    items: [
+      { label: "Cabang Kami", href: "/cabang" },
+      { label: "Hubungi WhatsApp", href: "/kontak" },
+      { label: "Jam Operasional", href: "/kontak" },
+    ],
+  },
+  {
+    title: "Perusahaan",
+    items: [
+      { label: "Profil K-Cunk Motor", href: "/tentang" },
+      { label: "Lokasi Showroom", href: "/cabang" },
+      { label: "Kontak Resmi", href: "/kontak" },
+    ],
+  },
+];
+
+const actionLinks = [
+  {
+    href: `https://wa.me/${WHATSAPP_NUMBER}`,
+    label: "WhatsApp",
+    icon: MessageCircle,
+    newTab: true,
+  },
+  {
+    href: `tel:${WHATSAPP_NUMBER}`,
+    label: "Telepon",
+    icon: Phone,
+    newTab: false,
+  },
+  {
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      ADDRESS_LINES.join(", "),
+    )}`,
+    label: "Maps",
+    icon: MapPin,
+    newTab: true,
+  },
+  {
+    href: "/kontak",
+    label: "Kontak",
+    icon: ArrowUpRight,
+    internal: true,
+  },
 ];
 
 export default function LandingFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-slate-800">
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-black" />
+    <footer className="relative bg-[#010202]">
+      <div className="absolute inset-x-0 top-0 h-px bg-white/8" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                <Car className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-black text-sm text-white tracking-wide">
-                  K-CUNK MOTOR
-                </p>
-                <p className="text-[9px] text-slate-500 tracking-widest uppercase">
-                  Cepat, dan Terpercaya
-                </p>
-              </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.12fr)_320px] xl:grid-cols-[minmax(0,1.18fr)_360px]">
+          <div>
+            <Link href="/" className="inline-flex items-center gap-2">
+              <span className="kcunk-italic-logo text-2xl text-kcunk-red leading-none sm:text-3xl">
+                K<span className="text-white">-Cunk</span>
+              </span>
+              <span className="kcunk-italic-logo text-2xl text-white leading-none tracking-tight sm:text-3xl">
+                Motor
+              </span>
             </Link>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Showroom mobil bekas terpercaya di Tulungagung sejak 2007.
-              Menyediakan kendaraan berkualitas dengan proses transparan.
-            </p>
-          </div>
 
-          {/* Menu */}
-          <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
-              Menu
-            </h4>
-            <ul className="space-y-2 sm:space-y-2.5">
-              {menuLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-xs sm:text-sm text-slate-500 hover:text-cyan-400 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+            <div className="mt-8 grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10">
+              {footerColumns.map((column) => (
+                <div key={column.title}>
+                  <h3 className="text-sm font-semibold text-white">
+                    {column.title}
+                  </h3>
+                  <div className="mt-4 space-y-2.5">
+                    {column.items.map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="block text-sm leading-relaxed text-[#424952] transition-colors hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Layanan */}
-          <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
-              Layanan
-            </h4>
-            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
-              <li>Jual Beli Mobil Bekas</li>
-              <li>Inspeksi Kendaraan</li>
-              <li>Tukar Tambah</li>
-              <li>Konsultasi Gratis</li>
-            </ul>
-          </div>
+          <div className="lg:justify-self-end">
+            <div className="rounded-tl-[40px] rounded-br-[40px] bg-[#303c4d] px-6 py-7 text-right shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:px-7">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    {WHATSAPP_DISPLAY}
+                  </p>
+                  <p className="mt-1 text-sm text-[#9298a1]">
+                    Chat dan reservasi via WhatsApp
+                  </p>
+                </div>
 
-          {/* Kontak */}
-          <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
-              Kontak
-            </h4>
-            <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
-              <li>WA: +62 815-7486-5632</li>
-              <li>Sen - Sab: 08:00 - 20:00</li>
-              <li>Minggu: 09:00 - 17:00</li>
-              <li className="pt-1">
-                Jl. Raya Prigi, Tulunkulon,
-                <br />
-                Kec. Bandung, Tulungagung
-              </li>
-            </ul>
+                <div>
+                  <p className="inline-flex items-center justify-end gap-2 text-sm text-[#9298a1]">
+                    <Clock3 className="h-4 w-4 text-white/70" />
+                    Senin - Sabtu, 08:00 - 20:00 WIB
+                  </p>
+                </div>
+
+                <div className="space-y-1 text-sm text-[#9298a1]">
+                  {ADDRESS_LINES.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center justify-end gap-5 text-white">
+              {actionLinks.map((item) =>
+                item.internal ? (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="transition-colors hover:text-kcunk-red"
+                    aria-label={item.label}
+                  >
+                    <item.icon className="h-5 w-5" />
+                  </Link>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target={item.newTab ? "_blank" : undefined}
+                    rel={item.newTab ? "noreferrer" : undefined}
+                    className="transition-colors hover:text-kcunk-red"
+                    aria-label={item.label}
+                  >
+                    <item.icon className="h-5 w-5" />
+                  </a>
+                ),
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-8 sm:mt-10 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[10px] sm:text-xs text-slate-600">
-            &copy; {currentYear} K-CUNK MOTOR. All rights reserved.
-          </p>
-          <p className="text-[10px] sm:text-xs text-slate-600">
-            Powered by{" "}
-            <span className="text-slate-500 font-medium">
-              Mediator Warehouse System
-            </span>
-          </p>
+        <div className="mt-12 border-t border-white/12 pt-4 sm:mt-14 sm:pt-5">
+          <div className="flex flex-col gap-3 text-xs text-[rgba(66,73,82,0.8)] sm:flex-row sm:items-center sm:justify-between">
+            <p>&copy; {currentYear} K-CUNK MOTOR, All right reserved</p>
+
+            <div className="flex items-center gap-8 sm:justify-end">
+              <span>Privacy Policy</span>
+              <span>Terms of Use</span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

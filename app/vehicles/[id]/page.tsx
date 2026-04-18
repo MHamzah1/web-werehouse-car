@@ -53,6 +53,7 @@ interface ListingVehicleDetail {
   description: string | null;
   condition: string | null;
   showroom: VehicleShowroom | null;
+  variant?: string | null;
 }
 
 interface PublicListingDetail {
@@ -71,6 +72,7 @@ interface PublicListingDetail {
   viewCount?: number;
   publishedAt?: string | null;
   vehicle: ListingVehicleDetail;
+  variant?: string | null;
 }
 
 const toNumber = (value: number | string | null | undefined) => {
@@ -140,7 +142,9 @@ export default function VehicleDetailPage() {
 
     (async () => {
       try {
-        const { data } = await instanceAxios.get(`/public/listings/vehicle/${id}`);
+        const { data } = await instanceAxios.get(
+          `/public/listings/vehicle/${id}`,
+        );
         setListing(data);
       } catch {
         setError(true);
@@ -189,6 +193,7 @@ export default function VehicleDetailPage() {
   }
 
   const vehicle = listing.vehicle;
+
   const title =
     listing.listingTitle?.trim() ||
     `${vehicle.brandName} ${vehicle.modelName}`.trim();
@@ -217,7 +222,8 @@ export default function VehicleDetailPage() {
   const whatsappUrl = whatsappNumber
     ? buildWhatsAppUrl(whatsappNumber, contactName, vehicle)
     : null;
-  const primaryContactHref = whatsappUrl || (phoneNumber ? `tel:${phoneNumber}` : null);
+  const primaryContactHref =
+    whatsappUrl || (phoneNumber ? `tel:${phoneNumber}` : null);
   const primaryContactLabel = whatsappUrl
     ? "Hubungi via WhatsApp"
     : phoneNumber
@@ -281,7 +287,10 @@ export default function VehicleDetailPage() {
             <span className="sm:hidden">Kembali</span>
           </Link>
 
-          <Link href="/" className="flex items-center gap-2 text-right sm:text-left">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-right sm:text-left"
+          >
             <span className="kcunk-italic-logo text-2xl text-kcunk-red leading-none sm:text-3xl">
               K<span className="text-white">-Cunk</span>
             </span>
@@ -349,7 +358,9 @@ export default function VehicleDetailPage() {
                         fill
                         priority
                         sizes="(max-width: 1024px) 100vw, 66vw"
-                        unoptimized={shouldBypassImageOptimization(images[activeImage])}
+                        unoptimized={shouldBypassImageOptimization(
+                          images[activeImage],
+                        )}
                         className="object-cover cursor-pointer"
                         onClick={() => setLightboxOpen(true)}
                       />
@@ -518,7 +529,9 @@ export default function VehicleDetailPage() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-black text-white">
-                            {listing.viewCount ? `${listing.viewCount}` : "Aktif"}
+                            {listing.viewCount
+                              ? `${listing.viewCount}`
+                              : "Aktif"}
                           </p>
                           <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/55">
                             {listing.viewCount ? "Total view" : "Status unit"}
@@ -663,7 +676,9 @@ export default function VehicleDetailPage() {
                         Foto Tersedia
                       </p>
                       <p className="mt-2 text-lg font-black text-kcunk-ink">
-                        {images.length > 0 ? `${images.length} Sudut Foto` : "Belum Ada Foto"}
+                        {images.length > 0
+                          ? `${images.length} Sudut Foto`
+                          : "Belum Ada Foto"}
                       </p>
                     </div>
 
@@ -672,7 +687,9 @@ export default function VehicleDetailPage() {
                         Status Harga
                       </p>
                       <p className="mt-2 text-lg font-black text-kcunk-ink">
-                        {listing.isNegotiable ? "Masih Bisa Nego" : "Harga Tetap"}
+                        {listing.isNegotiable
+                          ? "Masih Bisa Nego"
+                          : "Harga Tetap"}
                       </p>
                     </div>
                   </div>
@@ -747,11 +764,15 @@ export default function VehicleDetailPage() {
                 <div className="grid gap-px bg-kcunk-line sm:grid-cols-3">
                   <MiniInfoCard
                     label="Kontak"
-                    value={primaryContactHref ? "Siap Dihubungi" : "Belum Tersedia"}
+                    value={
+                      primaryContactHref ? "Siap Dihubungi" : "Belum Tersedia"
+                    }
                   />
                   <MiniInfoCard
                     label="Listing"
-                    value={listing.viewCount ? `${listing.viewCount} View` : "Aktif"}
+                    value={
+                      listing.viewCount ? `${listing.viewCount} View` : "Aktif"
+                    }
                   />
                   <MiniInfoCard
                     label="Harga"
@@ -831,7 +852,9 @@ export default function VehicleDetailPage() {
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">
               Harga
             </p>
-            <p className="truncate text-sm font-black text-white">{priceLabel}</p>
+            <p className="truncate text-sm font-black text-white">
+              {priceLabel}
+            </p>
           </div>
 
           {primaryContactHref ? (

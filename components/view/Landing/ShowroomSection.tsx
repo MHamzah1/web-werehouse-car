@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin, Phone, Clock, Navigation } from "lucide-react";
+import {
+  ArrowUpRight,
+  Clock3,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
 
 interface Showroom {
@@ -16,11 +22,23 @@ interface Showroom {
   logo: string | null;
 }
 
-const gradients = [
-  "from-cyan-500 to-blue-600",
-  "from-emerald-500 to-teal-500",
-  "from-orange-500 to-red-500",
-];
+const sanitizePhoneNumber = (value: string | null | undefined) =>
+  value ? value.replace(/[^\d]/g, "") : "";
+
+const formatPhoneDisplay = (value: string | null | undefined) => {
+  if (!value) return "-";
+  const trimmed = value.trim();
+  if (trimmed.startsWith("+")) return trimmed;
+  if (trimmed.startsWith("62")) return `+${trimmed}`;
+  return trimmed;
+};
+
+const buildMapsUrl = (showroom: Showroom) => {
+  const query = encodeURIComponent(
+    `${showroom.name}, ${showroom.address}, ${showroom.city}, ${showroom.province}`,
+  );
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+};
 
 export default function ShowroomSection() {
   const [showrooms, setShowrooms] = useState<Showroom[]>([]);
@@ -37,97 +55,145 @@ export default function ShowroomSection() {
   }, []);
 
   const openWhatsApp = (whatsapp: string, name: string) => {
-    const phone = whatsapp.startsWith("62") ? whatsapp : `62${whatsapp.replace(/^0/, "")}`;
+    const phone = sanitizePhoneNumber(whatsapp);
+    if (!phone) return;
+
     const message = encodeURIComponent(
-      `Halo ${name}, saya tertarik dengan mobil di showroom Anda. Bisa info lebih lanjut?`
+      `Halo ${name}, saya tertarik dengan unit mobil yang tersedia di showroom Anda. Bisa dibantu informasinya?`,
     );
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
 
   if (showrooms.length === 0) return null;
 
+  const locationChips = Array.from(
+    new Set(
+      showrooms.map((showroom) => `${showroom.city}, ${showroom.province}`),
+    ),
+  ).slice(0, 8);
+
   return (
-    <section className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-20"
-        style={{ backgroundImage: "url('/landing/showroom-bg.jpg')" }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-900/92 to-slate-950/95" />
-      <div className="absolute -bottom-20 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl" />
+    <section className="relative bg-white py-16 sm:py-20 md:py-24">
+      <div className="absolute inset-x-0 top-0 h-px bg-kcunk-line" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 sm:mb-16">
-          <span className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-xs sm:text-sm font-bold border border-emerald-500/20 mb-4 sm:mb-6">
-            <Navigation className="w-4 h-4" />
-            Cabang Kami
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 sm:mb-4">
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              {showrooms.length} Showroom
-            </span>{" "}
-            Siap Melayani
+        <div className="text-center mb-10 sm:mb-14">
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.26em] text-kcunk-muted mb-3">
+            Our Showrooms
+          </p>
+          <h2 className="kcunk-heading text-3xl sm:text-4xl md:text-5xl text-kcunk-ink mb-4">
+            Kunjungi{" "}
+            <span className="text-kcunk-red">{showrooms.length} Cabang</span>{" "}
+            K-Cunk Motor
           </h2>
-          <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base px-2">
-            Kunjungi cabang terdekat atau hubungi via WhatsApp untuk konsultasi gratis.
+          <p className="max-w-2xl mx-auto text-sm sm:text-base text-kcunk-slate leading-relaxed">
+            Mengikuti arah visual landing page Figma, section ini dibuat lebih
+            bersih dan rapi agar informasi cabang mudah dipindai tanpa terasa
+            berat.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          {showrooms.map((s, idx) => (
-            <div
-              key={s.id}
-              className="group rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl shadow-xl"
-            >
-              {/* Gradient Header */}
-              <div className={`bg-gradient-to-r ${gradients[idx % gradients.length]} p-5 sm:p-6 relative overflow-hidden`}>
-                <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-                <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full blur-lg" />
-                <div className="flex items-center justify-between relative z-10">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-black text-white">{s.name}</h3>
-                    <span className="text-xs text-white/70 font-mono">{s.code}</span>
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-black text-base sm:text-lg">
-                    {idx + 1}
-                  </div>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {showrooms.map((showroom, index) => {
+            const phoneDisplay = formatPhoneDisplay(showroom.phone);
+            const hasWhatsApp = Boolean(sanitizePhoneNumber(showroom.whatsapp));
 
-              {/* Content */}
-              <div className="p-5 sm:p-6">
-                <div className="space-y-3 sm:space-y-4 mb-5 sm:mb-6">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">{s.address}</p>
-                  </div>
+            return (
+              <article
+                key={showroom.id}
+                className="group relative overflow-hidden border border-kcunk-line bg-white shadow-[0_16px_45px_rgba(11,11,13,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(11,11,13,0.12)]"
+              >
+                <div className="absolute inset-x-0 top-0 h-1.5 bg-kcunk-red" />
 
-                  {s.phone && (
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <p className="text-xs sm:text-sm text-slate-400">+{s.phone}</p>
+                <div className="px-5 pb-5 pt-6 sm:px-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-kcunk-red">
+                        {showroom.code || `Cabang ${index + 1}`}
+                      </p>
+                      <h3 className="mt-2 text-xl font-black text-kcunk-ink">
+                        {showroom.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-kcunk-slate">
+                        {showroom.city}, {showroom.province}
+                      </p>
                     </div>
-                  )}
 
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    <p className="text-xs sm:text-sm text-slate-400">Senin - Sabtu, 08:00 - 20:00</p>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-kcunk-line text-sm font-black text-kcunk-red">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 space-y-3 border-t border-kcunk-line pt-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-kcunk-red" />
+                      <p className="text-sm leading-relaxed text-kcunk-slate">
+                        {showroom.address}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Phone className="h-4 w-4 flex-shrink-0 text-kcunk-red" />
+                      <p className="text-sm text-kcunk-slate">{phoneDisplay}</p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Clock3 className="h-4 w-4 flex-shrink-0 text-kcunk-red" />
+                      <p className="text-sm text-kcunk-slate">
+                        Senin - Sabtu, 08:00 - 20:00 WIB
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-2 gap-2.5">
+                    <a
+                      href={buildMapsUrl(showroom)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 border border-kcunk-ink px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-kcunk-ink transition-colors hover:bg-kcunk-ink hover:text-white"
+                    >
+                      Maps
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+
+                    {hasWhatsApp ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          openWhatsApp(showroom.whatsapp!, showroom.name)
+                        }
+                        className="inline-flex items-center justify-center gap-2 bg-kcunk-red px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        WhatsApp
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center justify-center border border-kcunk-line bg-kcunk-surface px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+                        Kontak N/A
+                      </span>
+                    )}
                   </div>
                 </div>
+              </article>
+            );
+          })}
+        </div>
 
-                {s.whatsapp && (
-                  <button
-                    onClick={() => openWhatsApp(s.whatsapp!, s.name)}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm hover:brightness-110 transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    Hubungi WhatsApp
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+        <div className="mt-10 border-t border-kcunk-line pt-6">
+          <p className="text-center text-[11px] font-bold uppercase tracking-[0.24em] text-kcunk-muted">
+            Jaringan Cabang K-Cunk Motor
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            {locationChips.map((location) => (
+              <span
+                key={location}
+                className="inline-flex min-w-[130px] items-center justify-center rounded-full border border-kcunk-line bg-kcunk-surface px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-kcunk-slate"
+              >
+                {location}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>

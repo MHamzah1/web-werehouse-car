@@ -33,7 +33,6 @@ export default function LandingPage() {
       <AppDownloadSection />
       <NewsSection />
       <ShowroomSection />
-      <ContactSection />
       <LandingFooter />
 
       {/* Floating WhatsApp */}
