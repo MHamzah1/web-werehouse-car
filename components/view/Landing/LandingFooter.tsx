@@ -27,18 +27,25 @@ export default function LandingFooter() {
                 <Car className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-black text-sm text-white tracking-wide">K-CUNK MOTOR</p>
-                <p className="text-[9px] text-slate-500 tracking-widest uppercase">Cepat, dan Terpercaya</p>
+                <p className="font-black text-sm text-white tracking-wide">
+                  K-CUNK MOTOR
+                </p>
+                <p className="text-[9px] text-slate-500 tracking-widest uppercase">
+                  Cepat, dan Terpercaya
+                </p>
               </div>
             </Link>
             <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Showroom mobil bekas terpercaya di Tulungagung sejak 2007. Menyediakan kendaraan berkualitas dengan proses transparan.
+              Showroom mobil bekas terpercaya di Tulungagung sejak 2007.
+              Menyediakan kendaraan berkualitas dengan proses transparan.
             </p>
           </div>
 
           {/* Menu */}
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Menu</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
+              Menu
+            </h4>
             <ul className="space-y-2 sm:space-y-2.5">
               {menuLinks.map((link) => (
                 <li key={link.href}>
@@ -55,7 +62,9 @@ export default function LandingFooter() {
 
           {/* Layanan */}
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Layanan</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
+              Layanan
+            </h4>
             <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
               <li>Jual Beli Mobil Bekas</li>
               <li>Inspeksi Kendaraan</li>
@@ -66,7 +75,9 @@ export default function LandingFooter() {
 
           {/* Kontak */}
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">Kontak</h4>
+            <h4 className="text-xs sm:text-sm font-bold text-white mb-3 lg:mb-5 uppercase tracking-wider">
+              Kontak
+            </h4>
             <ul className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm text-slate-500">
               <li>WA: +62 815-7486-5632</li>
               <li>Sen - Sab: 08:00 - 20:00</li>
@@ -87,7 +98,9 @@ export default function LandingFooter() {
           </p>
           <p className="text-[10px] sm:text-xs text-slate-600">
             Powered by{" "}
-            <span className="text-slate-500 font-medium">Mediator Warehouse System</span>
+            <span className="text-slate-500 font-medium">
+              Mediator Warehouse System
+            </span>
           </p>
         </div>
       </div>
