@@ -4,15 +4,30 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowLeft, Calendar, Gauge, Fuel, MapPin, Phone, Car,
-  ChevronLeft, ChevronRight, X, Palette, Shield, Eye,
-} from "lucide-react";
+import LandingFooter from "@/components/view/Landing/LandingFooter";
 import { instanceAxios } from "@/lib/axiosInstance/instanceAxios";
 import {
   resolveMediaUrl,
   shouldBypassImageOptimization,
 } from "@/lib/media-url";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  Car,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Fuel,
+  Gauge,
+  MapPin,
+  MessageCircle,
+  Palette,
+  Phone,
+  Shield,
+  X,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface VehicleShowroom {
   id: string;
@@ -74,6 +89,42 @@ const formatCurrency = (val: number | string) =>
     minimumFractionDigits: 0,
   }).format(toNumber(val));
 
+const formatMileage = (value: number) =>
+  value > 0 ? `${value.toLocaleString("id-ID")} km` : "-";
+
+const sanitizePhoneNumber = (value: string | null | undefined) =>
+  value ? value.replace(/[^\d]/g, "") : "";
+
+const formatPhoneDisplay = (value: string | null | undefined) => {
+  if (!value) return "-";
+  const trimmed = value.trim();
+  if (trimmed.startsWith("+")) return trimmed;
+  if (trimmed.startsWith("62")) return `+${trimmed}`;
+  return trimmed;
+};
+
+const buildWhatsAppUrl = (
+  phone: string,
+  contactName: string,
+  vehicle: ListingVehicleDetail,
+) => {
+  const message = encodeURIComponent(
+    `Halo ${contactName}, saya tertarik dengan mobil ${vehicle.brandName} ${vehicle.modelName} ${vehicle.year}${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah unit ini masih tersedia?`,
+  );
+  return `https://wa.me/${phone}?text=${message}`;
+};
+
+const formatPublishedDate = (value: string | null | undefined) => {
+  if (!value) return "Listing aktif";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Listing aktif";
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+};
+
 export default function VehicleDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -86,6 +137,7 @@ export default function VehicleDetailPage() {
 
   useEffect(() => {
     if (!id) return;
+
     (async () => {
       try {
         const { data } = await instanceAxios.get(`/public/listings/vehicle/${id}`);
@@ -98,316 +150,698 @@ export default function VehicleDetailPage() {
     })();
   }, [id]);
 
-  const openWhatsApp = () => {
-    const vehicle = listing?.vehicle;
-    const phoneSource = listing?.contactWhatsapp || listing?.vehicle.showroom?.whatsapp;
-    if (!vehicle || !phoneSource) return;
-
-    const phone = phoneSource.startsWith("62")
-      ? phoneSource
-      : `62${phoneSource.replace(/^0/, "")}`;
-    const contactName =
-      listing?.contactName ||
-      listing?.vehicle.showroom?.name ||
-      "tim showroom";
-    const message = encodeURIComponent(
-      `Halo ${contactName}, saya tertarik dengan mobil *${vehicle.brandName} ${vehicle.modelName} ${vehicle.year}*${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah masih tersedia?`
-    );
-    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-kcunk-surface flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-kcunk-red border-t-transparent animate-spin" />
       </div>
     );
   }
 
   if (error || !listing?.vehicle) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-        <div className="text-center">
-          <Car className="w-16 h-16 sm:w-20 sm:h-20 text-slate-700 mx-auto mb-4" />
-          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Kendaraan Tidak Ditemukan</h1>
-          <p className="text-slate-400 text-sm mb-6">Kendaraan ini mungkin sudah terjual atau tidak tersedia.</p>
-          <Link
-            href="/katalog"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:brightness-110 transition-all"
-          >
-            <ArrowLeft size={18} />
-            Kembali ke Katalog
-          </Link>
+      <div className="min-h-screen bg-kcunk-surface px-4 py-10 sm:px-6">
+        <div className="mx-auto flex max-w-xl items-center justify-center min-h-[70vh]">
+          <div className="w-full overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_24px_70px_rgba(11,11,13,0.08)]">
+            <div className="h-1.5 bg-kcunk-red" />
+            <div className="p-8 text-center sm:p-10">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-sm bg-kcunk-black text-white">
+                <Car className="w-8 h-8" />
+              </div>
+              <h1 className="mt-6 text-2xl font-black text-kcunk-ink sm:text-3xl">
+                Kendaraan Tidak Ditemukan
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-kcunk-slate sm:text-base">
+                Unit ini mungkin sudah terjual atau belum tersedia untuk publik.
+              </p>
+              <Link
+                href="/katalog"
+                className="mt-7 inline-flex items-center gap-2 rounded-sm bg-kcunk-red px-6 py-3 text-sm font-bold uppercase tracking-wider text-white transition-colors hover:bg-kcunk-red-dark"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Kembali ke Katalog
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   const vehicle = listing.vehicle;
+  const title =
+    listing.listingTitle?.trim() ||
+    `${vehicle.brandName} ${vehicle.modelName}`.trim();
+  const heroSubtitle = [
+    String(vehicle.year),
+    vehicle.transmission || "Transmisi belum dicantumkan",
+    vehicle.fuelType || "Bahan bakar belum dicantumkan",
+    vehicle.color || "Warna belum dicantumkan",
+  ].join(" - ");
   const images =
-    vehicle.images?.length > 0 ? vehicle.images.map((image) => resolveMediaUrl(image)) : [];
+    vehicle.images?.length > 0
+      ? vehicle.images.map((image) => resolveMediaUrl(image))
+      : [];
   const description = listing.description || vehicle.description;
-
-  const specs = [
+  const priceLabel =
+    toNumber(listing.askingPrice) > 0
+      ? formatCurrency(listing.askingPrice)
+      : "Hubungi Kami";
+  const rawPhone = listing.contactPhone || vehicle.showroom?.phone || null;
+  const rawWhatsapp =
+    listing.contactWhatsapp || vehicle.showroom?.whatsapp || null;
+  const phoneNumber = sanitizePhoneNumber(rawPhone);
+  const whatsappNumber = sanitizePhoneNumber(rawWhatsapp);
+  const contactName =
+    listing.contactName || vehicle.showroom?.name || "tim showroom";
+  const whatsappUrl = whatsappNumber
+    ? buildWhatsAppUrl(whatsappNumber, contactName, vehicle)
+    : null;
+  const primaryContactHref = whatsappUrl || (phoneNumber ? `tel:${phoneNumber}` : null);
+  const primaryContactLabel = whatsappUrl
+    ? "Hubungi via WhatsApp"
+    : phoneNumber
+      ? "Telepon Showroom"
+      : "Kontak Belum Tersedia";
+  const summaryFacts = [
+    { label: "Kilometer", value: formatMileage(vehicle.mileage) },
+    { label: "Bahan Bakar", value: vehicle.fuelType || "-" },
+    { label: "Kondisi", value: vehicle.condition || "Baik" },
+    {
+      label: "Dilihat",
+      value: listing.viewCount ? `${listing.viewCount} kali` : "Listing aktif",
+    },
+  ];
+  const stripStats = [
+    { label: "Tahun", value: String(vehicle.year) },
+    { label: "Transmisi", value: vehicle.transmission || "-" },
+    { label: "Warna", value: vehicle.color || "-" },
+    {
+      label: "Showroom",
+      value: vehicle.showroom?.city || "Hubungi kami",
+    },
+  ];
+  const specCards = [
     { label: "Tahun", value: String(vehicle.year), icon: Calendar },
     { label: "Transmisi", value: vehicle.transmission || "-", icon: Gauge },
     { label: "Bahan Bakar", value: vehicle.fuelType || "-", icon: Fuel },
-    {
-      label: "Kilometer",
-      value: vehicle.mileage > 0 ? `${vehicle.mileage.toLocaleString("id-ID")} km` : "-",
-      icon: Gauge,
-    },
+    { label: "Kilometer", value: formatMileage(vehicle.mileage), icon: Gauge },
     { label: "Warna", value: vehicle.color || "-", icon: Palette },
     { label: "Kondisi", value: vehicle.condition || "Baik", icon: Shield },
   ];
+  const publishedLabel = formatPublishedDate(listing.publishedAt);
+  const highlightItems = Array.from(
+    new Set(
+      [
+        ...(listing.highlights || []),
+        listing.isNegotiable ? "Harga bisa nego" : null,
+        vehicle.showroom?.city ? `Tersedia di ${vehicle.showroom.city}` : null,
+        vehicle.condition ? `Kondisi ${vehicle.condition}` : null,
+      ].filter((item): item is string => Boolean(item?.trim())),
+    ),
+  ).slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-kcunk-surface text-kcunk-ink">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-kcunk-black/95 backdrop-blur-md">
+        <div className="h-1 bg-kcunk-red" />
+        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between gap-4 px-4 sm:h-20 sm:px-6 lg:px-8">
           <Link
             href="/katalog"
-            className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/70 transition-colors hover:text-kcunk-red"
           >
-            <ArrowLeft size={18} />
-            <span className="text-sm font-medium">Kembali</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Kembali ke katalog</span>
+            <span className="sm:hidden">Kembali</span>
           </Link>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-              <Car className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-white hidden sm:inline">K-CUNK MOTOR</span>
+
+          <Link href="/" className="flex items-center gap-2 text-right sm:text-left">
+            <span className="kcunk-italic-logo text-2xl text-kcunk-red leading-none sm:text-3xl">
+              K<span className="text-white">-Cunk</span>
+            </span>
+            <span className="kcunk-italic-logo text-2xl text-white leading-none tracking-tight sm:text-3xl">
+              Motor
+            </span>
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
-          <div className="lg:col-span-3 space-y-5 sm:space-y-6">
-            <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-slate-800">
-              <div className="relative aspect-[16/10] bg-slate-900">
-                {images.length > 0 ? (
-                  <>
-                    <Image
-                      src={images[activeImage]}
-                      alt={listing.listingTitle || `${vehicle.brandName} ${vehicle.modelName}`}
-                      fill
-                      unoptimized={shouldBypassImageOptimization(images[activeImage])}
-                      className="object-cover cursor-pointer"
-                      sizes="(max-width: 1024px) 100vw, 60vw"
-                      onClick={() => setLightboxOpen(true)}
-                      priority
-                    />
-                    {images.length > 1 && (
-                      <>
-                        <button
-                          onClick={() => setActiveImage((p) => (p === 0 ? images.length - 1 : p - 1))}
-                          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-                        >
-                          <ChevronLeft size={18} />
-                        </button>
-                        <button
-                          onClick={() => setActiveImage((p) => (p === images.length - 1 ? 0 : p + 1))}
-                          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-                        >
-                          <ChevronRight size={18} />
-                        </button>
-                      </>
-                    )}
-                    <div className="absolute bottom-3 right-3 flex items-center gap-2">
-                      <button
-                        onClick={() => setLightboxOpen(true)}
-                        className="px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-1.5 hover:bg-black/70 transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        {activeImage + 1}/{images.length}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-                    <Car className="w-20 h-20 sm:w-24 sm:h-24 text-slate-700" />
-                  </div>
-                )}
-              </div>
+      <main className="pb-24 lg:pb-0">
+        <section className="relative overflow-hidden bg-kcunk-black pb-20 sm:pb-24">
+          <div className="absolute inset-y-0 left-0 w-full bg-kcunk-red lg:w-[38%]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_34%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.34))]" />
 
-              {images.length > 1 && (
-                <div className="flex gap-1.5 sm:gap-2 p-3 sm:p-4 bg-slate-900 overflow-x-auto">
-                  {images.map((img, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveImage(idx)}
-                      className={`relative flex-shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all ${
-                        idx === activeImage
-                          ? "border-cyan-500 ring-2 ring-cyan-500/30"
-                          : "border-transparent opacity-50 hover:opacity-80"
-                      }`}
-                    >
-                      <Image
-                        src={img}
-                        alt={`Foto ${idx + 1}`}
-                        fill
-                        unoptimized={shouldBypassImageOptimization(img)}
-                        className="object-cover"
-                        sizes="80px"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6">
-              <h3 className="text-base sm:text-lg font-bold mb-4">Spesifikasi</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                {specs.map((s) => (
-                  <div
-                    key={s.label}
-                    className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-slate-800/50 border border-slate-700/50 text-center"
+          <div className="relative max-w-7xl mx-auto px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="relative overflow-hidden pt-8 sm:pt-10">
+                  <span
+                    className="pointer-events-none absolute left-0 top-0 text-[46px] font-black uppercase leading-none tracking-[0.18em] text-transparent opacity-35 sm:text-[72px]"
+                    style={{ WebkitTextStroke: "1px rgba(255,255,255,0.28)" }}
                   >
-                    <s.icon className="w-5 h-5 text-cyan-400 mx-auto mb-2" />
-                    <p className="text-[10px] sm:text-xs text-slate-500 mb-0.5">{s.label}</p>
-                    <p className="text-xs sm:text-sm font-bold text-white">{s.value}</p>
-                  </div>
-                ))}
+                    Detail
+                  </span>
+                  <p className="text-xs font-bold uppercase tracking-[0.26em] text-white/70 sm:text-sm">
+                    Koleksi Pilihan K-Cunk Motor
+                  </p>
+                  <h1 className="kcunk-heading mt-3 text-4xl text-white sm:text-5xl lg:text-6xl">
+                    {title}
+                  </h1>
+                </div>
+                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
+                  Halaman detail ini dirapikan mengikuti nuansa landing page
+                  Figma: bersih, tegas, fokus pada foto unit, informasi penting,
+                  dan jalur kontak yang cepat.
+                </p>
+              </div>
+
+              <div className="self-start border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-sm sm:px-5">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">
+                  Harga Penawaran
+                </p>
+                <p className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                  {priceLabel}
+                </p>
               </div>
             </div>
 
-            {description && (
-              <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6">
-                <h3 className="text-base sm:text-lg font-bold mb-3">Deskripsi</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed whitespace-pre-line">
-                  {description}
-                </p>
-              </div>
-            )}
-          </div>
+            <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(340px,0.8fr)] xl:gap-8">
+              <div className="overflow-hidden rounded-sm border border-white/70 bg-white shadow-[0_30px_90px_rgba(0,0,0,0.28)]">
+                <div className="relative aspect-[16/10] bg-kcunk-surface">
+                  {images.length > 0 ? (
+                    <>
+                      <Image
+                        src={images[activeImage]}
+                        alt={title}
+                        fill
+                        priority
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        unoptimized={shouldBypassImageOptimization(images[activeImage])}
+                        className="object-cover cursor-pointer"
+                        onClick={() => setLightboxOpen(true)}
+                      />
 
-          <div className="lg:col-span-2">
-            <div className="sticky top-20 sm:top-24 space-y-5 sm:space-y-6">
-              <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6 shadow-xl">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black mb-2">
-                  {listing.listingTitle || `${vehicle.brandName} ${vehicle.modelName}`}
-                </h1>
-                <p className="text-slate-400 text-xs sm:text-sm mb-5 sm:mb-6">
-                  {vehicle.year} &middot; {vehicle.transmission || "-"} &middot; {vehicle.color || "-"}
-                </p>
+                      <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end gap-3 p-4 sm:p-5">
+                        <div className="relative bg-kcunk-red px-4 py-3 pr-10 text-white shadow-lg sm:px-5">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">
+                            Harga
+                          </p>
+                          <p className="mt-1 text-lg font-black sm:text-xl">
+                            {priceLabel}
+                          </p>
+                          <div className="absolute right-0 top-0 h-full w-6 translate-x-2 skew-x-[-18deg] bg-kcunk-red" />
+                        </div>
 
-                <div className="mb-5 sm:mb-6 p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-cyan-500/10 to-blue-600/10 border border-cyan-500/20">
-                  <p className="text-[10px] sm:text-xs text-slate-400 mb-1">Harga</p>
-                  <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                    {toNumber(listing.askingPrice) > 0 ? formatCurrency(listing.askingPrice) : "Hubungi Kami"}
-                  </p>
+                        {listing.isNegotiable && (
+                          <span className="rounded-sm bg-kcunk-black px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-md">
+                            Bisa Nego
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="absolute right-4 top-4 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setLightboxOpen(true)}
+                          className="inline-flex items-center gap-1.5 rounded-sm bg-white/90 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-kcunk-ink shadow-md transition-colors hover:bg-white"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          {activeImage + 1}/{images.length}
+                        </button>
+                      </div>
+
+                      {images.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveImage((prev) =>
+                                prev === 0 ? images.length - 1 : prev - 1,
+                              )
+                            }
+                            className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-kcunk-ink shadow-lg transition-colors hover:bg-white"
+                            aria-label="Foto sebelumnya"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveImage((prev) =>
+                                prev === images.length - 1 ? 0 : prev + 1,
+                              )
+                            }
+                            className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-kcunk-ink shadow-lg transition-colors hover:bg-white"
+                            aria-label="Foto berikutnya"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[linear-gradient(135deg,#f7f8fa_0%,#ebeef3_100%)] text-center">
+                      <Car className="w-20 h-20 text-kcunk-muted" />
+                      <p className="mt-4 text-sm font-semibold text-kcunk-slate">
+                        Foto unit belum tersedia
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {listing.highlights && listing.highlights.length > 0 && (
-                  <div className="mb-5 sm:mb-6 flex flex-wrap gap-2">
-                    {listing.highlights.map((highlight, index) => (
-                      <span
-                        key={`${highlight}-${index}`}
-                        className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-[10px] sm:text-xs font-semibold"
-                      >
-                        {highlight}
-                      </span>
-                    ))}
+                {images.length > 1 && (
+                  <div className="border-t border-kcunk-line bg-white px-4 py-4 sm:px-5 sm:py-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-muted">
+                        Galeri Unit
+                      </p>
+                      <p className="text-xs text-kcunk-slate">
+                        {images.length} foto tersedia
+                      </p>
+                    </div>
+
+                    <div className="flex gap-3 overflow-x-auto pb-1">
+                      {images.map((img, index) => (
+                        <button
+                          type="button"
+                          key={`${img}-${index}`}
+                          onClick={() => setActiveImage(index)}
+                          className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-sm border transition-all sm:h-24 sm:w-24 ${
+                            index === activeImage
+                              ? "border-kcunk-red shadow-[0_12px_35px_rgba(230,57,70,0.18)]"
+                              : "border-kcunk-line opacity-70 hover:opacity-100"
+                          }`}
+                        >
+                          <Image
+                            src={img}
+                            alt={`Foto kendaraan ${index + 1}`}
+                            fill
+                            sizes="96px"
+                            unoptimized={shouldBypassImageOptimization(img)}
+                            className="object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
-
-                <button
-                  onClick={openWhatsApp}
-                  className="w-full py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm sm:text-base hover:brightness-110 transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2 sm:gap-3"
-                >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6 fill-current">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                  </svg>
-                  Hubungi via WhatsApp
-                </button>
-                <p className="text-[10px] sm:text-xs text-slate-500 text-center mt-3">
-                  Tanyakan ketersediaan & negosiasi langsung
-                </p>
               </div>
 
-              {vehicle.showroom && (
-                <div className="rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 p-5 sm:p-6 shadow-lg">
-                  <h3 className="text-sm sm:text-base font-bold mb-4">Lokasi Showroom</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center flex-shrink-0">
-                        <Car className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <div className="space-y-6 lg:sticky lg:top-24 self-start">
+                <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_22px_60px_rgba(11,11,13,0.08)]">
+                  <div className="h-1.5 bg-kcunk-red" />
+                  <div className="p-5 sm:p-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
+                      Ringkasan Unit
+                    </p>
+                    <h2 className="mt-3 text-2xl font-black text-kcunk-ink sm:text-3xl">
+                      {title}
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-kcunk-slate">
+                      {heroSubtitle}
+                    </p>
+
+                    {highlightItems.length > 0 && (
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {highlightItems.map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-sm border border-kcunk-red/20 bg-kcunk-red/10 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-kcunk-red"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                      {summaryFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className="rounded-sm border border-kcunk-line bg-kcunk-surface px-3 py-3.5"
+                        >
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+                            {fact.label}
+                          </p>
+                          <p className="mt-2 text-sm font-black text-kcunk-ink">
+                            {fact.value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 rounded-sm bg-kcunk-black px-5 py-5 text-white">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
+                        Status Listing
+                      </p>
+                      <p className="mt-2 text-lg font-black text-white">
+                        {publishedLabel}
+                      </p>
+                      <p className="mt-3 text-xs leading-relaxed text-white/70">
+                        Gunakan tombol kontak di bawah untuk menanyakan stok
+                        terbaru, detail kondisi, dan jadwal survey unit.
+                      </p>
+                    </div>
+
+                    <div className="mt-6 space-y-3">
+                      {primaryContactHref ? (
+                        <a
+                          href={primaryContactHref}
+                          target={whatsappUrl ? "_blank" : undefined}
+                          rel={whatsappUrl ? "noreferrer" : undefined}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-kcunk-red px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          {primaryContactLabel}
+                        </a>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled
+                          className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-sm bg-kcunk-line px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-muted"
+                        >
+                          <Phone className="w-4 h-4" />
+                          Kontak Belum Tersedia
+                        </button>
+                      )}
+
+                      {phoneNumber && whatsappUrl && (
+                        <a
+                          href={`tel:${phoneNumber}`}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-kcunk-ink px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-ink transition-colors hover:bg-kcunk-ink hover:text-white"
+                        >
+                          <Phone className="w-4 h-4" />
+                          Telepon Showroom
+                        </a>
+                      )}
+                    </div>
+
+                    <p className="mt-4 text-xs leading-relaxed text-kcunk-muted">
+                      Respon biasanya lebih cepat untuk pertanyaan stok,
+                      negosiasi, dan permintaan kirim detail foto tambahan.
+                    </p>
+                  </div>
+                </div>
+
+                {vehicle.showroom && (
+                  <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.08)]">
+                    <div className="flex items-start gap-4 border-b border-kcunk-line p-5 sm:p-6">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-kcunk-red text-white">
+                        <Car className="w-6 h-6" />
                       </div>
                       <div>
-                        <p className="font-bold text-white text-sm">{vehicle.showroom.name}</p>
-                        <p className="text-[10px] sm:text-xs text-slate-500">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
+                          Lokasi Showroom
+                        </p>
+                        <h3 className="mt-1 text-lg font-black text-kcunk-ink">
+                          {vehicle.showroom.name}
+                        </h3>
+                        <p className="text-sm text-kcunk-slate">
                           {vehicle.showroom.city}, {vehicle.showroom.province}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-start gap-3 pt-2">
-                      <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-slate-400 leading-relaxed">{vehicle.showroom.address}</p>
-                    </div>
+                    <div className="bg-kcunk-black p-5 text-white sm:p-6">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="mt-0.5 w-4 h-4 flex-shrink-0 text-kcunk-red-light" />
+                          <p className="text-sm leading-relaxed text-white/80">
+                            {vehicle.showroom.address}
+                          </p>
+                        </div>
 
-                    {(listing.contactPhone || vehicle.showroom.phone) && (
-                      <div className="flex items-center gap-3">
-                        <Phone className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                        <p className="text-xs text-slate-400">+{listing.contactPhone || vehicle.showroom.phone}</p>
+                        {rawPhone && (
+                          <div className="flex items-center gap-3">
+                            <Phone className="w-4 h-4 flex-shrink-0 text-kcunk-red-light" />
+                            <p className="text-sm text-white/80">
+                              {formatPhoneDisplay(rawPhone)}
+                            </p>
+                          </div>
+                        )}
+
+                        {rawWhatsapp && rawWhatsapp !== rawPhone && (
+                          <div className="flex items-center gap-3">
+                            <MessageCircle className="w-4 h-4 flex-shrink-0 text-kcunk-red-light" />
+                            <p className="text-sm text-white/80">
+                              {formatPhoneDisplay(rawWhatsapp)}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+
+        <section className="relative z-10 -mt-10 sm:-mt-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-kcunk-line bg-kcunk-line shadow-[0_24px_80px_rgba(11,11,13,0.08)] lg:grid-cols-4">
+              {stripStats.map((item) => (
+                <div key={item.label} className="bg-white px-4 py-5 sm:px-5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-kcunk-muted">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-sm font-black text-kcunk-ink sm:text-base">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="max-w-7xl mx-auto px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
+            <div className="space-y-6">
+              <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
+                <div className="border-b border-kcunk-line px-5 py-4 sm:px-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
+                    Tentang Mobil
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black text-kcunk-ink">
+                    Detail yang Perlu Anda Tahu
+                  </h3>
+                </div>
+
+                <div className="p-5 sm:p-6">
+                  <p className="text-sm leading-relaxed text-kcunk-slate whitespace-pre-line sm:text-base">
+                    {description ||
+                      "Deskripsi detail unit belum dicantumkan. Untuk mengetahui kondisi eksterior, interior, hasil inspeksi, atau riwayat pemakaian, silakan hubungi showroom melalui tombol kontak yang tersedia."}
+                  </p>
+
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+                        Foto Tersedia
+                      </p>
+                      <p className="mt-2 text-lg font-black text-kcunk-ink">
+                        {images.length > 0 ? `${images.length} Sudut Foto` : "Belum Ada Foto"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+                        Status Harga
+                      </p>
+                      <p className="mt-2 text-lg font-black text-kcunk-ink">
+                        {listing.isNegotiable ? "Masih Bisa Nego" : "Harga Tetap"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
+                <div className="border-b border-kcunk-line px-5 py-4 sm:px-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
+                    Spesifikasi Lengkap
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black text-kcunk-ink">
+                    Ringkas, Jelas, dan Mudah Dibandingkan
+                  </h3>
+                </div>
+
+                <div className="grid gap-px bg-kcunk-line sm:grid-cols-2 xl:grid-cols-3">
+                  {specCards.map((item) => (
+                    <SpecCard
+                      key={item.label}
+                      icon={item.icon}
+                      label={item.label}
+                      value={item.value}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
+                <div className="bg-kcunk-black px-5 py-6 text-white sm:px-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red-light">
+                    Bantuan Cepat
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black">
+                    Butuh Unit Lain untuk Dibandingkan?
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/70">
+                    Buka katalog untuk melihat unit lain dengan visual yang sama
+                    rapi, lalu bandingkan harga, tahun, dan detail showroom.
+                  </p>
+
+                  <Link
+                    href="/katalog"
+                    className="mt-5 inline-flex items-center gap-2 rounded-sm bg-kcunk-red px-5 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+                  >
+                    Lihat Katalog
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+
+                <div className="grid gap-px bg-kcunk-line sm:grid-cols-3">
+                  <MiniInfoCard
+                    label="Kontak"
+                    value={primaryContactHref ? "Siap Dihubungi" : "Belum Tersedia"}
+                  />
+                  <MiniInfoCard
+                    label="Listing"
+                    value={listing.viewCount ? `${listing.viewCount} View` : "Aktif"}
+                  />
+                  <MiniInfoCard
+                    label="Harga"
+                    value={listing.isNegotiable ? "Nego" : "Tetap"}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <LandingFooter />
+      </main>
 
       {lightboxOpen && images.length > 0 && (
-        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-black/95">
           <button
+            type="button"
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 p-2 text-white/60 hover:text-white transition-colors z-10"
+            className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+            aria-label="Tutup galeri"
           >
-            <X size={28} />
+            <X className="w-5 h-5" />
           </button>
-          <button
-            onClick={() => setActiveImage((p) => (p === 0 ? images.length - 1 : p - 1))}
-            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="relative w-full max-w-5xl aspect-[16/10] mx-4">
-            <Image
-              src={images[activeImage]}
-              alt={`Foto ${activeImage + 1}`}
-              fill
-              unoptimized={shouldBypassImageOptimization(images[activeImage])}
-              className="object-contain"
-              sizes="100vw"
-            />
+
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveImage((prev) =>
+                    prev === 0 ? images.length - 1 : prev - 1,
+                  )
+                }
+                className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                aria-label="Foto sebelumnya"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveImage((prev) =>
+                    prev === images.length - 1 ? 0 : prev + 1,
+                  )
+                }
+                className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+                aria-label="Foto berikutnya"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
+
+          <div className="flex h-full items-center justify-center px-4 py-16">
+            <div className="relative w-full max-w-6xl aspect-[16/10] overflow-hidden rounded-sm">
+              <Image
+                src={images[activeImage]}
+                alt={`Foto kendaraan ${activeImage + 1}`}
+                fill
+                sizes="100vw"
+                unoptimized={shouldBypassImageOptimization(images[activeImage])}
+                className="object-contain"
+              />
+            </div>
           </div>
-          <button
-            onClick={() => setActiveImage((p) => (p === images.length - 1 ? 0 : p + 1))}
-            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
-          >
-            <ChevronRight size={20} />
-          </button>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-sm bg-kcunk-red px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white">
             {activeImage + 1} / {images.length}
           </div>
         </div>
       )}
 
-      <div className="fixed bottom-5 right-5 lg:hidden z-40">
-        <button
-          onClick={openWhatsApp}
-          className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-2xl shadow-green-500/30 flex items-center justify-center hover:scale-110 transition-transform"
-        >
-          <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7 fill-current">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-          </svg>
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-kcunk-black/95 backdrop-blur-md lg:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">
+              Harga
+            </p>
+            <p className="truncate text-sm font-black text-white">{priceLabel}</p>
+          </div>
+
+          {primaryContactHref ? (
+            <a
+              href={primaryContactHref}
+              target={whatsappUrl ? "_blank" : undefined}
+              rel={whatsappUrl ? "noreferrer" : undefined}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-sm bg-kcunk-red px-4 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+            >
+              <MessageCircle className="w-4 h-4" />
+              {whatsappUrl ? "Chat" : "Telepon"}
+            </a>
+          ) : (
+            <span className="inline-flex min-h-11 items-center justify-center rounded-sm bg-white/10 px-4 text-xs font-bold uppercase tracking-[0.18em] text-white/60">
+              Kontak N/A
+            </span>
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function SpecCard({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-white px-5 py-5">
+      <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-kcunk-red/10 text-kcunk-red">
+        <Icon className="w-5 h-5" />
+      </div>
+      <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-black text-kcunk-ink">{value}</p>
+    </div>
+  );
+}
+
+function MiniInfoCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white px-4 py-4">
+      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
+        {label}
+      </p>
+      <p className="mt-2 text-sm font-black text-kcunk-ink">{value}</p>
     </div>
   );
 }
