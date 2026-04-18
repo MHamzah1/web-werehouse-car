@@ -39,6 +39,11 @@ interface VehicleShowroom {
   address: string;
 }
 
+interface ListingVehicleVariant {
+  variantName: string | null;
+  transmissionType?: string | null;
+}
+
 interface ListingVehicleDetail {
   id: string;
   brandName: string;
@@ -53,7 +58,7 @@ interface ListingVehicleDetail {
   description: string | null;
   condition: string | null;
   showroom: VehicleShowroom | null;
-  variant?: string | null;
+  variant?: ListingVehicleVariant | null;
 }
 
 interface PublicListingDetail {
@@ -72,7 +77,6 @@ interface PublicListingDetail {
   viewCount?: number;
   publishedAt?: string | null;
   vehicle: ListingVehicleDetail;
-  variant?: string | null;
 }
 
 const toNumber = (value: number | string | null | undefined) => {
@@ -94,6 +98,26 @@ const formatCurrency = (val: number | string) =>
 const formatMileage = (value: number) =>
   value > 0 ? `${value.toLocaleString("id-ID")} km` : "-";
 
+const formatTransmissionLabel = (value: string | null | undefined) => {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) return "-";
+  if (normalized === "matic") return "Matic";
+  if (normalized === "manual") return "Manual";
+  if (normalized === "both") return "Manual / Matic";
+  return value!.trim();
+};
+
+const buildVehicleTitle = (vehicle: ListingVehicleDetail) => {
+  const parts = [
+    vehicle.brandName?.trim(),
+    vehicle.modelName?.trim(),
+    vehicle.variant?.variantName?.trim(),
+    vehicle.year ? String(vehicle.year) : null,
+  ].filter((part): part is string => Boolean(part));
+
+  return parts.join(" ");
+};
+
 const sanitizePhoneNumber = (value: string | null | undefined) =>
   value ? value.replace(/[^\d]/g, "") : "";
 
@@ -110,8 +134,9 @@ const buildWhatsAppUrl = (
   contactName: string,
   vehicle: ListingVehicleDetail,
 ) => {
+  const vehicleTitle = buildVehicleTitle(vehicle);
   const message = encodeURIComponent(
-    `Halo ${contactName}, saya tertarik dengan mobil ${vehicle.brandName} ${vehicle.modelName} ${vehicle.year}${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah unit ini masih tersedia?`,
+    `Halo ${contactName}, saya tertarik dengan mobil ${vehicleTitle}${vehicle.color ? ` warna ${vehicle.color}` : ""}. Apakah unit ini masih tersedia?`,
   );
   return `https://wa.me/${phone}?text=${message}`;
 };
@@ -193,15 +218,15 @@ export default function VehicleDetailPage() {
   }
 
   const vehicle = listing.vehicle;
-
-  const title =
-    listing.listingTitle?.trim() ||
-    `${vehicle.brandName} ${vehicle.modelName}`.trim();
+  const title = buildVehicleTitle(vehicle);
+  const transmissionLabel = formatTransmissionLabel(
+    vehicle.transmission || vehicle.variant?.transmissionType,
+  );
   const heroSubtitle = [
-    String(vehicle.year),
-    vehicle.transmission || "Transmisi belum dicantumkan",
-    vehicle.fuelType || "Bahan bakar belum dicantumkan",
     vehicle.color || "Warna belum dicantumkan",
+    transmissionLabel !== "-" ? transmissionLabel : "Transmisi belum dicantumkan",
+    vehicle.fuelType || "Bahan bakar belum dicantumkan",
+    vehicle.condition || "Kondisi belum dicantumkan",
   ].join(" - ");
   const images =
     vehicle.images?.length > 0
@@ -240,7 +265,7 @@ export default function VehicleDetailPage() {
   ];
   const stripStats = [
     { label: "Tahun", value: String(vehicle.year) },
-    { label: "Transmisi", value: vehicle.transmission || "-" },
+    { label: "Transmisi", value: transmissionLabel },
     { label: "Warna", value: vehicle.color || "-" },
     {
       label: "Showroom",
@@ -249,7 +274,7 @@ export default function VehicleDetailPage() {
   ];
   const specCards = [
     { label: "Tahun", value: String(vehicle.year), icon: Calendar },
-    { label: "Transmisi", value: vehicle.transmission || "-", icon: Gauge },
+    { label: "Transmisi", value: transmissionLabel, icon: Gauge },
     { label: "Bahan Bakar", value: vehicle.fuelType || "-", icon: Fuel },
     { label: "Kilometer", value: formatMileage(vehicle.mileage), icon: Gauge },
     { label: "Warna", value: vehicle.color || "-", icon: Palette },

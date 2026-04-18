@@ -27,8 +27,14 @@ interface VehicleShowroom {
   address: string;
 }
 
+interface ListingVehicleVariant {
+  variantName: string | null;
+  transmissionType?: string | null;
+}
+
 interface ListingVehicle {
   id: string;
+  variantId?: string | null;
   brandName: string;
   modelName: string;
   year: number;
@@ -41,6 +47,7 @@ interface ListingVehicle {
   description: string | null;
   condition: string | null;
   bodyStyle?: string | null;
+  variant?: ListingVehicleVariant | null;
   showroom: VehicleShowroom | null;
 }
 
@@ -77,6 +84,76 @@ const formatCurrency = (val: number | string) =>
     currency: "IDR",
     minimumFractionDigits: 0,
   }).format(toNumber(val));
+
+const formatTransmissionLabel = (value: string | null | undefined) => {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) return "—";
+  if (normalized === "matic") return "Matic";
+  if (normalized === "manual") return "Manual";
+  if (normalized === "both") return "Manual / Matic";
+  return value!.trim();
+};
+
+const formatMileageLabel = (value: number | null | undefined) => {
+  const mileage = typeof value === "number" ? value : 0;
+  return `${mileage.toLocaleString("id-ID")} km`;
+};
+
+const buildVehicleTitle = (vehicle: ListingVehicle) => {
+  const parts = [
+    vehicle.brandName?.trim(),
+    vehicle.modelName?.trim(),
+    vehicle.variant?.variantName?.trim(),
+    vehicle.year ? String(vehicle.year) : null,
+  ].filter((part): part is string => Boolean(part));
+
+  return parts.join(" ");
+};
+
+const variantCache = new Map<string, ListingVehicleVariant>();
+
+const enrichListingsWithVariants = async (items: PublicListingCard[]) => {
+  const missingVariantIds = Array.from(
+    new Set(
+      items
+        .map((item) => item.vehicle?.variantId)
+        .filter((id): id is string => Boolean(id) && !variantCache.has(id)),
+    ),
+  );
+
+  if (missingVariantIds.length > 0) {
+    await Promise.all(
+      missingVariantIds.map(async (variantId) => {
+        try {
+          const { data } = await instanceAxios.get(`/variants/${variantId}`);
+          variantCache.set(variantId, {
+            variantName: data?.variantName ?? null,
+            transmissionType: data?.transmissionType ?? null,
+          });
+        } catch {
+          variantCache.set(variantId, {
+            variantName: null,
+            transmissionType: null,
+          });
+        }
+      }),
+    );
+  }
+
+  return items.map((item) => {
+    const cachedVariant = item.vehicle?.variantId
+      ? variantCache.get(item.vehicle.variantId)
+      : null;
+
+    return {
+      ...item,
+      vehicle: {
+        ...item.vehicle,
+        variant: item.vehicle.variant || cachedVariant || null,
+      },
+    };
+  });
+};
 
 interface CatalogSectionProps {
   isFullPage?: boolean;
@@ -116,7 +193,8 @@ export default function CatalogSection({ isFullPage = false }: CatalogSectionPro
       if (filters.showroomId) params.showroomId = filters.showroomId;
 
       const { data } = await instanceAxios.get("/public/listings", { params });
-      setVehicles(data.data || []);
+      const enrichedVehicles = await enrichListingsWithVariants(data.data || []);
+      setVehicles(enrichedVehicles);
       setTotalPages(data.pagination?.totalPages || 1);
       setTotal(data.pagination?.totalRecords || 0);
     } catch {
@@ -306,12 +384,19 @@ function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
   const imageUrl = resolveMediaUrl(vehicle.images?.[0]);
   const unoptimizedImage = shouldBypassImageOptimization(imageUrl);
   const vehicleId = listing.vehicleId || vehicle.id;
-  const displayTitle =
-    listing.listingTitle?.trim() ||
-    `${vehicle.brandName} ${vehicle.modelName}`.trim();
-  const subtitle = `${vehicle.year} ${vehicle.brandName} ${vehicle.modelName}`.trim();
+  const displayTitle = buildVehicleTitle(vehicle);
+  const transmissionLabel = formatTransmissionLabel(
+    vehicle.transmission || vehicle.variant?.transmissionType,
+  );
+  const subtitle = [
+    vehicle.color?.trim(),
+    transmissionLabel !== "—" ? transmissionLabel : null,
+    vehicle.fuelType?.trim(),
+  ]
+    .filter((part): part is string => Boolean(part))
+    .join(" - ");
   const price = toNumber(listing.askingPrice);
-  const bodyStyle = vehicle.bodyStyle || "Sedan";
+  const mileageLabel = formatMileageLabel(vehicle.mileage);
 
   return (
     <Link
@@ -362,11 +447,11 @@ function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-base sm:text-lg font-black text-kcunk-ink mb-1 group-hover:text-kcunk-red transition-colors truncate">
+        <h3 className="text-base sm:text-lg font-black text-kcunk-ink mb-1 min-h-[2.7rem] leading-tight group-hover:text-kcunk-red transition-colors sm:min-h-[3rem]">
           {displayTitle}
         </h3>
-        <p className="text-xs sm:text-sm text-kcunk-slate mb-4 truncate">
-          {subtitle}
+        <p className="text-xs sm:text-sm text-kcunk-slate mb-4 min-h-[1.25rem]">
+          {subtitle || "Unit siap dilihat detailnya"}
         </p>
 
         {/* Specs row — 3 columns */}
@@ -376,12 +461,8 @@ function VehicleCard({ vehicle: listing }: { vehicle: PublicListingCard }) {
             label="Year"
             value={String(vehicle.year || "—")}
           />
-          <Spec icon={Car} label="Body Style" value={bodyStyle} />
-          <Spec
-            icon={Gauge}
-            label="Transmission"
-            value={vehicle.transmission || "—"}
-          />
+          <Spec icon={Gauge} label="KM" value={mileageLabel} />
+          <Spec icon={Car} label="Transmission" value={transmissionLabel} />
         </div>
       </div>
     </Link>
