@@ -260,6 +260,12 @@ export default function VehicleDetailPage() {
       ].filter((item): item is string => Boolean(item?.trim())),
     ),
   ).slice(0, 4);
+  const heroBadges = [
+    publishedLabel,
+    vehicle.showroom?.city ? `Showroom ${vehicle.showroom.city}` : null,
+    vehicle.mileage > 0 ? formatMileage(vehicle.mileage) : null,
+    listing.isNegotiable ? "Harga bisa nego" : "Harga tetap",
+  ].filter((item): item is string => Boolean(item));
 
   return (
     <div className="min-h-screen bg-kcunk-surface text-kcunk-ink">
@@ -286,18 +292,18 @@ export default function VehicleDetailPage() {
         </div>
       </header>
 
-      <main className="pb-24 lg:pb-0">
-        <section className="relative overflow-hidden bg-kcunk-black pb-20 sm:pb-24">
+      <main className="pb-20 lg:pb-0">
+        <section className="relative overflow-hidden bg-kcunk-black pb-12 sm:pb-16">
           <div className="absolute inset-y-0 left-0 w-full bg-kcunk-red lg:w-[38%]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_34%)]" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.06),rgba(0,0,0,0.34))]" />
 
-          <div className="relative max-w-7xl mx-auto px-4 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-12">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="relative max-w-7xl mx-auto px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-3xl">
-                <div className="relative overflow-hidden pt-8 sm:pt-10">
+                <div className="relative overflow-hidden pt-6 sm:pt-8">
                   <span
-                    className="pointer-events-none absolute left-0 top-0 text-[46px] font-black uppercase leading-none tracking-[0.18em] text-transparent opacity-35 sm:text-[72px]"
+                    className="pointer-events-none absolute left-0 top-0 text-[40px] font-black uppercase leading-none tracking-[0.18em] text-transparent opacity-35 sm:text-[60px]"
                     style={{ WebkitTextStroke: "1px rgba(255,255,255,0.28)" }}
                   >
                     Detail
@@ -305,28 +311,34 @@ export default function VehicleDetailPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.26em] text-white/70 sm:text-sm">
                     Koleksi Pilihan K-Cunk Motor
                   </p>
-                  <h1 className="kcunk-heading mt-3 text-4xl text-white sm:text-5xl lg:text-6xl">
+                  <h1 className="kcunk-heading mt-2 text-3xl text-white sm:text-4xl lg:text-5xl">
                     {title}
                   </h1>
                 </div>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
-                  Halaman detail ini dirapikan mengikuti nuansa landing page
-                  Figma: bersih, tegas, fokus pada foto unit, informasi penting,
-                  dan jalur kontak yang cepat.
-                </p>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {heroBadges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="rounded-sm border border-white/15 bg-white/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/85 backdrop-blur-sm"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
               </div>
 
-              <div className="self-start border border-white/20 bg-white/10 px-4 py-4 backdrop-blur-sm sm:px-5">
+              <div className="self-start border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm sm:px-5">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/70">
                   Harga Penawaran
                 </p>
-                <p className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                <p className="mt-1.5 text-xl font-black text-white sm:text-2xl">
                   {priceLabel}
                 </p>
               </div>
             </div>
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(340px,0.8fr)] xl:gap-8">
+            <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.78fr)] xl:gap-5">
               <div className="overflow-hidden rounded-sm border border-white/70 bg-white shadow-[0_30px_90px_rgba(0,0,0,0.28)]">
                 <div className="relative aspect-[16/10] bg-kcunk-surface">
                   {images.length > 0 ? (
@@ -342,12 +354,12 @@ export default function VehicleDetailPage() {
                         onClick={() => setLightboxOpen(true)}
                       />
 
-                      <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end gap-3 p-4 sm:p-5">
-                        <div className="relative bg-kcunk-red px-4 py-3 pr-10 text-white shadow-lg sm:px-5">
+                      <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end gap-2 p-3 sm:p-4">
+                        <div className="relative bg-kcunk-red px-4 py-2.5 pr-10 text-white shadow-lg sm:px-5">
                           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">
                             Harga
                           </p>
-                          <p className="mt-1 text-lg font-black sm:text-xl">
+                          <p className="mt-1 text-base font-black sm:text-lg">
                             {priceLabel}
                           </p>
                           <div className="absolute right-0 top-0 h-full w-6 translate-x-2 skew-x-[-18deg] bg-kcunk-red" />
@@ -360,7 +372,7 @@ export default function VehicleDetailPage() {
                         )}
                       </div>
 
-                      <div className="absolute right-4 top-4 flex items-center gap-2">
+                      <div className="absolute right-3 top-3 flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => setLightboxOpen(true)}
@@ -412,7 +424,7 @@ export default function VehicleDetailPage() {
 
                 {images.length > 1 && (
                   <div className="border-t border-kcunk-line bg-white px-4 py-4 sm:px-5 sm:py-5">
-                    <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="mb-2 flex items-center justify-between gap-3">
                       <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-muted">
                         Galeri Unit
                       </p>
@@ -421,7 +433,7 @@ export default function VehicleDetailPage() {
                       </p>
                     </div>
 
-                    <div className="flex gap-3 overflow-x-auto pb-1">
+                    <div className="flex gap-2.5 overflow-x-auto pb-1">
                       {images.map((img, index) => (
                         <button
                           type="button"
@@ -448,22 +460,22 @@ export default function VehicleDetailPage() {
                 )}
               </div>
 
-              <div className="space-y-6 lg:sticky lg:top-24 self-start">
+              <div className="space-y-4 self-start lg:sticky lg:top-24">
                 <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_22px_60px_rgba(11,11,13,0.08)]">
                   <div className="h-1.5 bg-kcunk-red" />
-                  <div className="p-5 sm:p-6">
+                  <div className="p-4 sm:p-5">
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
                       Ringkasan Unit
                     </p>
-                    <h2 className="mt-3 text-2xl font-black text-kcunk-ink sm:text-3xl">
+                    <h2 className="mt-2 text-xl font-black text-kcunk-ink sm:text-2xl">
                       {title}
                     </h2>
-                    <p className="mt-2 text-sm leading-relaxed text-kcunk-slate">
+                    <p className="mt-1.5 text-sm leading-relaxed text-kcunk-slate">
                       {heroSubtitle}
                     </p>
 
                     {highlightItems.length > 0 && (
-                      <div className="mt-5 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {highlightItems.map((item) => (
                           <span
                             key={item}
@@ -475,11 +487,11 @@ export default function VehicleDetailPage() {
                       </div>
                     )}
 
-                    <div className="mt-6 grid grid-cols-2 gap-3">
+                    <div className="mt-4 grid grid-cols-2 gap-2.5">
                       {summaryFacts.map((fact) => (
                         <div
                           key={fact.label}
-                          className="rounded-sm border border-kcunk-line bg-kcunk-surface px-3 py-3.5"
+                          className="rounded-sm border border-kcunk-line bg-kcunk-surface px-3 py-3"
                         >
                           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
                             {fact.label}
@@ -491,26 +503,37 @@ export default function VehicleDetailPage() {
                       ))}
                     </div>
 
-                    <div className="mt-6 rounded-sm bg-kcunk-black px-5 py-5 text-white">
+                    <div className="mt-4 rounded-sm bg-kcunk-black px-4 py-4 text-white">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
                         Status Listing
                       </p>
-                      <p className="mt-2 text-lg font-black text-white">
-                        {publishedLabel}
-                      </p>
-                      <p className="mt-3 text-xs leading-relaxed text-white/70">
-                        Gunakan tombol kontak di bawah untuk menanyakan stok
-                        terbaru, detail kondisi, dan jadwal survey unit.
-                      </p>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-lg font-black text-white">
+                            {publishedLabel}
+                          </p>
+                          <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/55">
+                            Tanggal tayang
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-black text-white">
+                            {listing.viewCount ? `${listing.viewCount}` : "Aktif"}
+                          </p>
+                          <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-white/55">
+                            {listing.viewCount ? "Total view" : "Status unit"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="mt-6 space-y-3">
+                    <div className="mt-4 space-y-2.5">
                       {primaryContactHref ? (
                         <a
                           href={primaryContactHref}
                           target={whatsappUrl ? "_blank" : undefined}
                           rel={whatsappUrl ? "noreferrer" : undefined}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-kcunk-red px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-kcunk-red px-5 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
                         >
                           <MessageCircle className="w-4 h-4" />
                           {primaryContactLabel}
@@ -519,7 +542,7 @@ export default function VehicleDetailPage() {
                         <button
                           type="button"
                           disabled
-                          className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-sm bg-kcunk-line px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-muted"
+                          className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-sm bg-kcunk-line px-5 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-muted"
                         >
                           <Phone className="w-4 h-4" />
                           Kontak Belum Tersedia
@@ -529,7 +552,7 @@ export default function VehicleDetailPage() {
                       {phoneNumber && whatsappUrl && (
                         <a
                           href={`tel:${phoneNumber}`}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-kcunk-ink px-5 py-4 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-ink transition-colors hover:bg-kcunk-ink hover:text-white"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-sm border border-kcunk-ink px-5 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-kcunk-ink transition-colors hover:bg-kcunk-ink hover:text-white"
                         >
                           <Phone className="w-4 h-4" />
                           Telepon Showroom
@@ -537,7 +560,7 @@ export default function VehicleDetailPage() {
                       )}
                     </div>
 
-                    <p className="mt-4 text-xs leading-relaxed text-kcunk-muted">
+                    <p className="mt-3 text-xs leading-relaxed text-kcunk-muted">
                       Respon biasanya lebih cepat untuk pertanyaan stok,
                       negosiasi, dan permintaan kirim detail foto tambahan.
                     </p>
@@ -546,15 +569,15 @@ export default function VehicleDetailPage() {
 
                 {vehicle.showroom && (
                   <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.08)]">
-                    <div className="flex items-start gap-4 border-b border-kcunk-line p-5 sm:p-6">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-sm bg-kcunk-red text-white">
-                        <Car className="w-6 h-6" />
+                    <div className="flex items-start gap-3 border-b border-kcunk-line p-4 sm:p-5">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-kcunk-red text-white">
+                        <Car className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
                           Lokasi Showroom
                         </p>
-                        <h3 className="mt-1 text-lg font-black text-kcunk-ink">
+                        <h3 className="mt-1 text-base font-black text-kcunk-ink sm:text-lg">
                           {vehicle.showroom.name}
                         </h3>
                         <p className="text-sm text-kcunk-slate">
@@ -563,8 +586,8 @@ export default function VehicleDetailPage() {
                       </div>
                     </div>
 
-                    <div className="bg-kcunk-black p-5 text-white sm:p-6">
-                      <div className="space-y-4">
+                    <div className="bg-kcunk-black p-4 text-white sm:p-5">
+                      <div className="space-y-3">
                         <div className="flex items-start gap-3">
                           <MapPin className="mt-0.5 w-4 h-4 flex-shrink-0 text-kcunk-red-light" />
                           <p className="text-sm leading-relaxed text-white/80">
@@ -598,11 +621,11 @@ export default function VehicleDetailPage() {
           </div>
         </section>
 
-        <section className="relative z-10 -mt-10 sm:-mt-12">
+        <section className="relative z-10 -mt-6 sm:-mt-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-kcunk-line bg-kcunk-line shadow-[0_24px_80px_rgba(11,11,13,0.08)] lg:grid-cols-4">
               {stripStats.map((item) => (
-                <div key={item.label} className="bg-white px-4 py-5 sm:px-5">
+                <div key={item.label} className="bg-white px-4 py-4 sm:px-5">
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-kcunk-muted">
                     {item.label}
                   </p>
@@ -615,27 +638,27 @@ export default function VehicleDetailPage() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
-            <div className="space-y-6">
+        <section className="max-w-7xl mx-auto px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+            <div className="space-y-4">
               <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
-                <div className="border-b border-kcunk-line px-5 py-4 sm:px-6">
+                <div className="border-b border-kcunk-line px-4 py-3.5 sm:px-5">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
                     Tentang Mobil
                   </p>
-                  <h3 className="mt-2 text-2xl font-black text-kcunk-ink">
+                  <h3 className="mt-1.5 text-xl font-black text-kcunk-ink sm:text-2xl">
                     Detail yang Perlu Anda Tahu
                   </h3>
                 </div>
 
-                <div className="p-5 sm:p-6">
+                <div className="p-4 sm:p-5">
                   <p className="text-sm leading-relaxed text-kcunk-slate whitespace-pre-line sm:text-base">
                     {description ||
                       "Deskripsi detail unit belum dicantumkan. Untuk mengetahui kondisi eksterior, interior, hasil inspeksi, atau riwayat pemakaian, silakan hubungi showroom melalui tombol kontak yang tersedia."}
                   </p>
 
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-4">
+                  <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-3.5">
                       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
                         Foto Tersedia
                       </p>
@@ -644,7 +667,7 @@ export default function VehicleDetailPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-4">
+                    <div className="rounded-sm border border-kcunk-line bg-kcunk-surface px-4 py-3.5">
                       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-kcunk-muted">
                         Status Harga
                       </p>
@@ -657,11 +680,11 @@ export default function VehicleDetailPage() {
               </div>
 
               <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
-                <div className="border-b border-kcunk-line px-5 py-4 sm:px-6">
+                <div className="border-b border-kcunk-line px-4 py-3.5 sm:px-5">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red">
                     Spesifikasi Lengkap
                   </p>
-                  <h3 className="mt-2 text-2xl font-black text-kcunk-ink">
+                  <h3 className="mt-1.5 text-xl font-black text-kcunk-ink sm:text-2xl">
                     Ringkas, Jelas, dan Mudah Dibandingkan
                   </h3>
                 </div>
@@ -679,23 +702,42 @@ export default function VehicleDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
-                <div className="bg-kcunk-black px-5 py-6 text-white sm:px-6">
+            <div className="h-full">
+              <div className="flex h-full flex-col overflow-hidden rounded-sm border border-kcunk-line bg-white shadow-[0_18px_50px_rgba(11,11,13,0.06)]">
+                <div className="flex-1 bg-kcunk-black px-4 py-4 text-white sm:px-5 sm:py-5">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-kcunk-red-light">
                     Bantuan Cepat
                   </p>
-                  <h3 className="mt-2 text-2xl font-black">
+                  <h3 className="mt-1.5 text-xl font-black sm:text-2xl">
                     Butuh Unit Lain untuk Dibandingkan?
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/70">
+                  <p className="mt-2 text-sm leading-relaxed text-white/70">
                     Buka katalog untuk melihat unit lain dengan visual yang sama
                     rapi, lalu bandingkan harga, tahun, dan detail showroom.
                   </p>
 
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-sm border border-white/10 bg-white/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">
+                        Fokus Cek
+                      </p>
+                      <p className="mt-1.5 text-sm font-black text-white">
+                        Harga, tahun, km
+                      </p>
+                    </div>
+                    <div className="rounded-sm border border-white/10 bg-white/5 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">
+                        Survey Cepat
+                      </p>
+                      <p className="mt-1.5 text-sm font-black text-white">
+                        Hubungi showroom
+                      </p>
+                    </div>
+                  </div>
+
                   <Link
                     href="/katalog"
-                    className="mt-5 inline-flex items-center gap-2 rounded-sm bg-kcunk-red px-5 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
+                    className="mt-4 inline-flex items-center gap-2 rounded-sm bg-kcunk-red px-5 py-3 text-sm font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-kcunk-red-dark"
                   >
                     Lihat Katalog
                     <ArrowRight className="w-4 h-4" />

@@ -32,8 +32,8 @@ export default function LandingPage() {
       <WhyUsSection />
       <AppDownloadSection />
       <NewsSection />
-      {/* <ShowroomSection />
-      <ContactSection /> */}
+      <ShowroomSection />
+      <ContactSection />
       <LandingFooter />
 
       {/* Floating WhatsApp */}
